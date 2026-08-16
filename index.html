@@ -1,0 +1,3447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نظام إدارة محل تأجير الفساتين</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.08);
+            --pink: #e91e63;
+            --pink-light: #f8bbd0;
+            --pink-dark: #880e4f;
+            --pink-glow: rgba(233,30,99,0.25);
+            --border-pink: rgba(233,30,99,0.3);
+            --shadow-pink: 0 8px 32px rgba(233,30,99,0.15);
+            --text-primary: #f5f0eb;
+            --text-secondary: #b0a8a0;
+            --text-muted: #6a625a;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+            --sidebar-width: 260px;
+            --green: #4caf50;
+            --green-light: #81c784;
+            --orange: #ff9800;
+            --orange-light: #ffb74d;
+            --red: #f44336;
+            --red-light: #ef9a9a;
+            --blue: #2196f3;
+            --blue-light: #90caf9;
+        }
+        html { font-size: 16px; scroll-behavior: smooth; }
+        body {
+            font-family: 'Almarai', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 4px; }
+
+        /* ===== LOGIN ===== */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-primary);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+            transition: opacity 0.5s ease;
+        }
+        #loginOverlay.hidden { opacity: 0; pointer-events: none; }
+        .login-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 48px 40px 40px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%; right: 20%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pink), transparent);
+        }
+        .login-box .brand-icon {
+            width: 80px; height: 80px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--pink);
+            box-shadow: 0 0 30px var(--pink-glow);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box .brand-icon img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        .login-box h1 {
+            font-size: 32px; font-weight: 800;
+            background: linear-gradient(135deg, var(--pink-light), var(--pink-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+        .login-box .sub {
+            color: var(--text-secondary);
+            font-size: 14px;
+            letter-spacing: 4px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid var(--border-pink);
+            padding-bottom: 20px;
+        }
+        .login-box .form-group { margin-bottom: 18px; text-align: right; }
+        .login-box .form-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .login-box .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-pink);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Almarai', sans-serif;
+            font-size: 16px;
+            transition: all var(--transition);
+            outline: none;
+        }
+        .login-box .form-group input:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(233,30,99,0.2);
+        }
+        .login-box .btn-login {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: 'Almarai', sans-serif;
+            margin-top: 6px;
+            box-shadow: 0 4px 20px rgba(233,30,99,0.3);
+        }
+        .login-box .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(233,30,99,0.5); }
+        .login-box .error-msg { color: #ff6b6b; font-size: 14px; margin-top: 14px; min-height: 24px; }
+        .login-box .footer-text { margin-top: 20px; color: var(--text-muted); font-size: 12px; letter-spacing: 1px; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-secondary);
+            height: 100vh;
+            position: fixed;
+            top: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 32px 20px 28px;
+            border-left: 1px solid var(--border-pink);
+            overflow-y: auto;
+            transition: transform var(--transition);
+        }
+        .sidebar-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 32px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-pink);
+            position: relative;
+        }
+        .sidebar-brand::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 30%; right: 30%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pink), transparent);
+        }
+        .brand-icon {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--pink);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .brand-icon img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+        .brand-name {
+            font-size: 26px; font-weight: 800; letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--pink-light), var(--pink-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .brand-sub { font-size: 12px; color: var(--text-secondary); letter-spacing: 4px; margin-top: 2px; font-weight: 300; }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 6px; padding-top: 8px; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 17px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: right;
+            font-family: 'Almarai', sans-serif;
+        }
+        .nav-item i { font-size: 20px; width: 28px; text-align: center; transition: all var(--transition); }
+        .nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(233,30,99,0.15), rgba(233,30,99,0.05));
+            color: var(--pink-light);
+            box-shadow: inset 0 0 0 1px var(--border-pink);
+        }
+        .nav-item.active i { color: var(--pink); }
+        .nav-item .badge {
+            margin-right: auto;
+            background: var(--pink);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
+        }
+        .nav-item.logout-item {
+            margin-top: 8px;
+            border-top: 1px solid var(--border-pink);
+            padding-top: 16px;
+            color: var(--text-muted);
+        }
+        .nav-item.logout-item:hover { color: #ff6b6b; }
+        .nav-item.logout-item i { color: #ff6b6b; }
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-pink);
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            margin-right: var(--sidebar-width);
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 32px 40px 40px 40px;
+            background: var(--bg-primary);
+            position: relative;
+        }
+        .main::before {
+            content: '';
+            position: fixed;
+            top: -30%; right: -20%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(233,30,99,0.04) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .page-header { margin-bottom: 36px; position: relative; z-index: 1; }
+        .page-header h1 {
+            font-size: 32px; font-weight: 800; color: var(--text-primary);
+            letter-spacing: 1px; display: flex; align-items: center; gap: 14px;
+        }
+        .page-header h1 i { color: var(--pink); font-size: 28px; }
+        .page-header p { color: var(--text-secondary); font-size: 16px; margin-top: 6px; font-weight: 300; }
+        .page-content { position: relative; z-index: 1; }
+        .view { display: none; animation: fadeUp 0.4s ease; }
+        .view.active { display: block; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-pink); border-color: var(--pink); }
+        .stat-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .stat-icon.pink { background: rgba(233,30,99,0.15); color: var(--pink); }
+        .stat-icon.green { background: rgba(76,175,80,0.15); color: var(--green); }
+        .stat-icon.orange { background: rgba(255,152,0,0.15); color: var(--orange); }
+        .stat-icon.blue { background: rgba(33,150,243,0.15); color: var(--blue); }
+        .stat-info h3 { font-size: 28px; font-weight: 800; color: var(--text-primary); }
+        .stat-info p { font-size: 14px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* ===== CARDS ===== */
+        .dress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+        }
+        .dress-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-pink);
+            overflow: hidden;
+            transition: all var(--transition);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+        }
+        .dress-card:hover { transform: translateY(-6px); border-color: var(--pink); box-shadow: var(--shadow-pink); background: var(--bg-card-hover); }
+        .dress-card .img-wrap {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: var(--bg-secondary);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .dress-card .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .dress-card:hover .img-wrap img { transform: scale(1.03); }
+        .dress-card .img-wrap .no-img { color: var(--text-muted); font-size: 48px; opacity: 0.3; }
+        .dress-card .img-wrap .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .status-available { background: var(--green); }
+        .status-rented { background: var(--orange); }
+        .status-maintenance { background: var(--red); }
+        .dress-card .card-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+        .dress-card .card-body h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .dress-card .card-body .desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .dress-card .card-body .meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .meta-tag {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(233,30,99,0.08);
+            color: var(--pink-light);
+            border: 1px solid rgba(233,30,99,0.1);
+        }
+        .dress-card .card-body .price-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-pink);
+            margin-bottom: 12px;
+        }
+        .price-line .rental-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--pink);
+        }
+        .price-line .deposit {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .dress-card .card-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-family: 'Almarai', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            flex: 1;
+            min-width: 80px;
+        }
+        .btn-pink {
+            background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(233,30,99,0.3);
+        }
+        .btn-pink:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(233,30,99,0.5); }
+        .btn-green {
+            background: linear-gradient(135deg, var(--green), #2e7d32);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(76,175,80,0.3);
+        }
+        .btn-green:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(76,175,80,0.5); }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-pink);
+        }
+        .btn-outline:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--pink); }
+        .btn-danger {
+            background: rgba(200,70,70,0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(200,70,70,0.25);
+        }
+        .btn-danger:hover { background: rgba(200,70,70,0.3); }
+        .btn-cancel {
+            background: rgba(255,255,255,0.06);
+            color: #ff6b6b;
+            border: 1px solid rgba(255,107,107,0.2);
+        }
+        .btn-cancel:hover { background: rgba(255,107,107,0.15); border-color: #ff6b6b; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; flex: 0 1 auto; }
+
+        /* ===== BOOKING/RENTAL LIST ===== */
+        .booking-list { display: flex; flex-direction: column; gap: 16px; }
+        .booking-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: all var(--transition);
+            flex-wrap: wrap;
+        }
+        .booking-item:hover { background: var(--bg-card-hover); border-color: var(--pink); }
+        .booking-item .thumb {
+            width: 60px; height: 60px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .booking-item .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .booking-item .thumb .no-img { font-size: 24px; color: var(--text-muted); opacity: 0.3; }
+        .booking-item .info { flex: 1; min-width: 150px; }
+        .booking-item .info .name { font-weight: 700; font-size: 17px; }
+        .booking-item .info .meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-top: 2px;
+        }
+        .booking-item .info .meta i { color: var(--pink); width: 18px; font-size: 13px; }
+        .booking-item .info .mods {
+            font-size: 14px;
+            color: var(--pink-light);
+            background: rgba(233,30,99,0.08);
+            padding: 2px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 4px;
+            border: 1px solid rgba(233,30,99,0.1);
+        }
+        .booking-item .actions { display: flex; gap: 8px; flex-shrink: 0; margin-right: auto; }
+        .booking-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+        .booking-empty i { font-size: 48px; opacity: 0.3; margin-bottom: 12px; display: block; }
+
+        /* ===== CONTROL PANEL ===== */
+        .panel-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .panel-actions .btn { flex: 0 1 auto; }
+        .form-add-dress {
+            background: var(--bg-card);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 32px;
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .form-add-dress.open { display: block; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 18px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 14px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-family: 'Almarai', sans-serif;
+            font-size: 15px;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            outline: none;
+            width: 100%;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(233,30,99,0.15);
+        }
+        .form-group select { cursor: pointer; appearance: none; -webkit-appearance: none; }
+        .form-group select option { background: var(--bg-secondary); color: var(--text-primary); }
+        .form-group input[type="file"] {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        .form-group input[type="file"]::file-selector-button {
+            background: var(--pink);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-family: 'Almarai', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        .form-actions { display: flex; gap: 12px; margin-top: 6px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; animation: fadeUp 0.3s ease; }
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .modal-box h2 { font-size: 24px; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; }
+        .modal-box h2 i { color: var(--pink); }
+        .modal-box .dress-preview {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border-pink);
+        }
+        .modal-box .dress-preview img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--bg-primary); }
+        .modal-box .dress-preview .dp-name { font-weight: 700; font-size: 17px; }
+        .modal-box .form-group { margin-bottom: 16px; }
+        .modal-box .form-group:last-of-type { margin-bottom: 20px; }
+        .modal-close {
+            position: absolute;
+            top: 16px; left: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+        .modal-close:hover { color: var(--text-primary); }
+
+        /* ===== SEARCH BAR ===== */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .search-bar input, .search-bar select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-family: 'Almarai', sans-serif;
+            font-size: 15px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all var(--transition);
+        }
+        .search-bar input { flex: 1; min-width: 200px; }
+        .search-bar input:focus, .search-bar select:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(233,30,99,0.15);
+        }
+
+        /* ===== INVOICE ===== */
+        .invoice-preview {
+            background: #fff;
+            color: #333;
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .invoice-preview .inv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--pink);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .invoice-preview .inv-header h2 {
+            font-size: 24px;
+            color: var(--pink-dark);
+        }
+        .invoice-preview .inv-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .invoice-preview .inv-row.total {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--pink-dark);
+            border-top: 2px solid var(--pink-dark);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-bottom: none;
+        }
+
+        /* ===== REPORTS TABLE ===== */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .report-table th, .report-table td {
+            padding: 12px 16px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-pink);
+            font-size: 14px;
+        }
+        .report-table th {
+            background: rgba(233,30,99,0.08);
+            color: var(--pink-light);
+            font-weight: 700;
+        }
+        .report-table tr:hover td { background: var(--bg-card-hover); }
+
+        /* ===== CUSTOMER LIST ===== */
+        .customer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .customer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: all var(--transition);
+        }
+        .customer-card:hover { border-color: var(--pink); box-shadow: var(--shadow-pink); }
+        .customer-card .c-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .customer-card .c-info { font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px; }
+        .customer-card .c-info i { color: var(--pink); width: 20px; }
+        .customer-card .c-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+        /* ===== SETTINGS ===== */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-pink);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+        .settings-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .settings-card h3 i { color: var(--pink); }
+
+        @media (max-width: 1024px) { .form-row { grid-template-columns: 1fr; } .form-row-3 { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; display: block; }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: 70px;
+                padding: 16px 20px;
+                flex-direction: row;
+                align-items: center;
+                border-left: none;
+                border-bottom: 1px solid var(--border-pink);
+                overflow-y: visible;
+                flex-wrap: wrap;
+            }
+            .sidebar-brand {
+                flex-direction: row;
+                padding-bottom: 0;
+                margin-bottom: 0;
+                border-bottom: none;
+                gap: 10px;
+                flex-shrink: 0;
+            }
+            .sidebar-brand::after { display: none; }
+            .brand-name { font-size: 20px; }
+            .brand-sub { display: none; }
+            .brand-icon { width: 40px; height: 40px; margin-bottom: 0; }
+            .nav-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 4px;
+                padding-top: 0;
+                flex: 1;
+                justify-content: flex-end;
+            }
+            .nav-item { padding: 8px 14px; font-size: 14px; gap: 8px; width: auto; flex: 0 1 auto; }
+            .nav-item i { font-size: 16px; width: auto; }
+            .nav-item .badge { display: none; }
+            .nav-item.logout-item { border-top: none; padding-top: 8px; margin-top: 0; }
+            .sidebar-footer { display: none; }
+            .main { margin-right: 0; padding: 20px 16px 40px; height: auto; overflow-y: visible; }
+            .page-header h1 { font-size: 24px; }
+            .stats-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+            .stat-card { padding: 16px; gap: 12px; }
+            .stat-icon { width: 44px; height: 44px; font-size: 20px; }
+            .stat-info h3 { font-size: 22px; }
+            .dress-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+            .dress-card .card-body { padding: 14px 16px 16px; }
+            .dress-card .card-body h3 { font-size: 17px; }
+            .modal-box { padding: 28px 20px; }
+            .booking-item { flex-wrap: wrap; gap: 12px; }
+            .booking-item .thumb { width: 48px; height: 48px; }
+            .booking-item .actions { margin-right: 0; width: 100%; justify-content: flex-end; }
+            .panel-actions { flex-direction: column; }
+            .panel-actions .btn { flex: 1; }
+            .form-add-dress { padding: 20px 16px; }
+            .form-row { grid-template-columns: 1fr; gap: 14px; }
+            .customer-grid { grid-template-columns: 1fr; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .search-bar { flex-direction: column; }
+            .search-bar input, .search-bar select { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .sidebar { padding: 12px 12px; min-height: 60px; }
+            .brand-name { font-size: 16px; }
+            .brand-icon { width: 32px; height: 32px; }
+            .nav-item { padding: 6px 10px; font-size: 12px; gap: 4px; }
+            .nav-item i { font-size: 14px; }
+            .main { padding: 14px 10px 30px; }
+            .page-header h1 { font-size: 20px; }
+            .dress-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+            .dress-card .card-body h3 { font-size: 15px; }
+            .btn { font-size: 12px; padding: 8px 14px; }
+            .modal-box h2 { font-size: 20px; }
+            .login-box { padding: 32px 20px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .text-pink { color: var(--pink); }
+        .w-full { width: 100%; }
+        .text-muted { color: var(--text-muted); }
+        .mb-20 { margin-bottom: 20px; }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .sidebar, .nav-item, .btn, .modal-overlay, #loginOverlay { display: none !important; }
+            .main { margin: 0 !important; padding: 0 !important; }
+            .invoice-preview { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN OVERLAY ===== -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <div class="brand-icon">
+                <img src="images/logo.png" alt="شعار المحل" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-crown\' style=\'font-size:40px;color:var(--pink);\'></i>';" />
+            </div>
+            <h1 id="loginTitle">على مودك</h1>
+            <div class="sub">✦ على مودك انت وبس ✦</div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> اسم المستخدم</label>
+                <input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم" />
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> كلمة المرور</label>
+                <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" />
+            </div>
+            <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> دخول</button>
+            <div class="error-msg" id="loginError"></div>
+            <div class="footer-text" id="loginFooter">© 2026 · نظام إدارة محل تأجير الفساتين</div>
+        </div>
+    </div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <img src="images/logo.png" alt="شعار المحل" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-crown\' style=\'font-size:30px;color:var(--pink);\'></i>';" />
+            </div>
+            <span class="brand-name" id="brandName">على مودك</span>
+            <span class="brand-sub" id="brandSub">✦ على مودك انت وبس ✦</span>
+        </div>
+        <nav class="nav-menu">
+            <button class="nav-item active" data-view="dashboard">
+                <i class="fas fa-chart-pie"></i> لوحة التحكم
+            </button>
+            <button class="nav-item" data-view="gallery">
+                <i class="fas fa-tshirt"></i> الفساتين
+                <span class="badge" id="dressesBadge">0</span>
+            </button>
+            <button class="nav-item" data-view="customers">
+                <i class="fas fa-users"></i> العملاء
+            </button>
+            <button class="nav-item" data-view="rentals">
+                <i class="fas fa-exchange-alt"></i> التأجيرات
+                <span class="badge" id="activeRentalsBadge">0</span>
+            </button>
+            <button class="nav-item" data-view="overdue">
+                <i class="fas fa-exclamation-triangle"></i> متأخرات
+                <span class="badge" id="overdueBadge">0</span>
+            </button>
+            <button class="nav-item" data-view="expenses">
+                <i class="fas fa-wallet"></i> المصاريف
+            </button>
+            <button class="nav-item" data-view="discounts">
+                <i class="fas fa-tag"></i> العروض والخصومات
+            </button>
+            <button class="nav-item" data-view="maintenance">
+                <i class="fas fa-tools"></i> الصيانة
+                <span class="badge" id="maintenanceBadge">0</span>
+            </button>
+            <button class="nav-item" data-view="reports">
+                <i class="fas fa-chart-bar"></i> التقارير
+            </button>
+            <button class="nav-item" data-view="settings">
+                <i class="fas fa-cog"></i> الإعدادات
+            </button>
+            <button class="nav-item logout-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <i class="fas fa-asterisk" style="color:var(--pink);font-size:10px;"></i> &nbsp; نظام إدارة محل الفساتين 2026
+        </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main" id="mainContent">
+
+        <!-- ===== DASHBOARD ===== -->
+        <section class="view active" id="viewDashboard">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-pie"></i> لوحة التحكم</h1>
+                <p>نظرة عامة على أداء المحل والإحصائيات</p>
+            </div>
+            <div class="page-content">
+                <div class="stats-grid" id="statsGrid"></div>
+                <h3 style="margin-bottom:16px;font-weight:400;color:var(--text-secondary);display:flex;align-items:center;gap:10px;">
+                    <i class="fas fa-calendar-day text-pink"></i> آخر التأجيرات
+                </h3>
+                <div class="booking-list" id="recentRentals"></div>
+            </div>
+        </section>
+
+        <!-- ===== GALLERY / DRESSES ===== -->
+        <section class="view" id="viewGallery">
+            <div class="page-header">
+                <h1><i class="fas fa-tshirt"></i> الفساتين</h1>
+                <p>إدارة فساتين التأجير</p>
+            </div>
+            <div class="page-content">
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="toggleDressFormBtn"><i class="fas fa-plus"></i> إضافة فستان جديد</button>
+                    <button class="btn btn-outline" id="refreshGalleryBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+                    <button class="btn btn-outline" id="exportDressesBtn"><i class="fas fa-file-export"></i> تصدير</button>
+                </div>
+
+                <div class="form-add-dress" id="dressForm">
+                    <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                        <i class="fas fa-edit text-pink"></i>
+                        <span id="formTitle">إضافة فستان جديد</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم الفستان *</label>
+                            <input type="text" id="dressName" placeholder="مثال: فستان أزرق ملكي" />
+                        </div>
+                        <div class="form-group">
+                            <label>الفئة</label>
+                            <select id="dressCategory">
+                                <option value="">اختر الفئة</option>
+                                <option value="سهرة">سهرة</option>
+                                <option value="عرايس">عرايس</option>
+                                <option value="أنيق">أنيق</option>
+                                <option value="كاجوال">كاجوال</option>
+                                <option value="مناسبات">مناسبات</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>المقاس</label>
+                            <select id="dressSize">
+                                <option value="">اختر المقاس</option>
+                                <option value="XS">XS</option>
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                                <option value="مقاسات متعددة">مقاسات متعددة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>اللون</label>
+                            <input type="text" id="dressColor" placeholder="مثال: أزرق، أحمر" />
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select id="dressCondition">
+                                <option value="جديدة">جديدة</option>
+                                <option value="ممتازة">ممتازة</option>
+                                <option value="جيدة">جيدة</option>
+                                <option value="تحتاج صيانة">تحتاج صيانة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>سعر التأجير (لليوم) *</label>
+                            <input type="number" id="dressPrice" placeholder="0" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>الوديعة</label>
+                            <input type="number" id="dressDeposit" placeholder="0" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>صورة الفستان</label>
+                            <input type="file" id="dressImage" accept="image/*" />
+                            <div id="imagePreview" style="margin-top:8px;display:none;">
+                                <img id="previewImg" style="max-width:120px;max-height:120px;border-radius:8px;border:1px solid var(--border-pink);" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>وصف / ملاحظات</label>
+                        <textarea id="dressDesc" placeholder="مثال: يمكن تعديل طول الفستان، قماش حريري..."></textarea>
+                    </div>
+                    <input type="hidden" id="editId" value="" />
+                    <div class="form-actions">
+                        <button class="btn btn-pink" id="saveDressBtn"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-outline" id="cancelFormBtn">إلغاء</button>
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="searchDress" placeholder="بحث بالاسم، اللون، الفئة..." />
+                    <select id="filterStatus">
+                        <option value="">كل الحالات</option>
+                        <option value="متاحة">متاحة</option>
+                        <option value="مؤجرة">مؤجرة</option>
+                        <option value="صيانة">صيانة</option>
+                    </select>
+                    <select id="filterCategory">
+                        <option value="">كل الفئات</option>
+                        <option value="سهرة">سهرة</option>
+                        <option value="عرايس">عرايس</option>
+                        <option value="أنيق">أنيق</option>
+                        <option value="كاجوال">كاجوال</option>
+                        <option value="مناسبات">مناسبات</option>
+                    </select>
+                </div>
+                <div class="dress-grid" id="galleryGrid"></div>
+            </div>
+        </section>
+
+        <!-- ===== CUSTOMERS ===== -->
+        <section class="view" id="viewCustomers">
+            <div class="page-header">
+                <h1><i class="fas fa-users"></i> العملاء</h1>
+                <p>إدارة بيانات العملاء</p>
+            </div>
+            <div class="page-content">
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="toggleCustomerFormBtn"><i class="fas fa-user-plus"></i> إضافة عميل</button>
+                    <button class="btn btn-outline" id="refreshCustomersBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+                </div>
+
+                <div class="form-add-dress" id="customerForm">
+                    <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                        <i class="fas fa-user-edit text-pink"></i>
+                        <span id="customerFormTitle">إضافة عميل جديد</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم العميل *</label>
+                            <input type="text" id="customerName" placeholder="الاسم الكامل" />
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف *</label>
+                            <input type="tel" id="customerPhone" placeholder="05xxxxxxxx" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="customerEmail" placeholder="example@email.com" />
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهوية / الإقامة</label>
+                            <input type="text" id="customerIdNum" placeholder="رقم الهوية" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>العنوان</label>
+                        <input type="text" id="customerAddress" placeholder="العنوان" />
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات</label>
+                        <textarea id="customerNotes" placeholder="ملاحظات إضافية عن العميل"></textarea>
+                    </div>
+                    <input type="hidden" id="editCustomerId" value="" />
+                    <div class="form-actions">
+                        <button class="btn btn-pink" id="saveCustomerBtn"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-outline" id="cancelCustomerBtn">إلغاء</button>
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="searchCustomer" placeholder="بحث بالاسم أو رقم الهاتف..." />
+                </div>
+                <div class="customer-grid" id="customerGrid"></div>
+            </div>
+        </section>
+
+        <!-- ===== RENTALS ===== -->
+        <section class="view" id="viewRentals">
+            <div class="page-header">
+                <h1><i class="fas fa-exchange-alt"></i> التأجيرات</h1>
+                <p>إدارة جميع التأجيرات</p>
+            </div>
+            <div class="page-content">
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="newRentalBtn"><i class="fas fa-plus"></i> تأجير جديد</button>
+                    <button class="btn btn-outline" id="refreshRentalsBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+                    <button class="btn btn-outline" id="exportRentalsBtn"><i class="fas fa-file-export"></i> تصدير</button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="searchRental" placeholder="بحث في التأجيرات..." />
+                    <select id="filterRentalStatus">
+                        <option value="">كل الحالات</option>
+                        <option value="نشط">نشط</option>
+                        <option value="مرجع">مرجع</option>
+                        <option value="متأخر">متأخر</option>
+                    </select>
+                </div>
+                <div class="booking-list" id="rentalsList"></div>
+            </div>
+        </section>
+
+        <!-- ===== OVERDUE ===== -->
+        <section class="view" id="viewOverdue">
+            <div class="page-header">
+                <h1><i class="fas fa-exclamation-triangle"></i> التأجيرات المتأخرة</h1>
+                <p>الفساتين التي تجاوزت موعد إرجاعها</p>
+            </div>
+            <div class="page-content">
+                <div class="booking-list" id="overdueList"></div>
+            </div>
+        </section>
+
+        <!-- ===== REPORTS ===== -->
+        <section class="view" id="viewReports">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-bar"></i> التقارير</h1>
+                <p>تقارير الأرباح والإحصائيات</p>
+            </div>
+            <div class="page-content">
+                <div class="stats-grid" id="reportStats"></div>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3><i class="fas fa-calendar"></i> إيرادات فترة</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>من تاريخ</label>
+                                <input type="date" id="reportFrom" />
+                            </div>
+                            <div class="form-group">
+                                <label>إلى تاريخ</label>
+                                <input type="date" id="reportTo" />
+                            </div>
+                        </div>
+                        <button class="btn btn-pink" id="generateReportBtn" style="margin-top:8px;"><i class="fas fa-chart-line"></i> عرض التقرير</button>
+                        <div id="reportResult" style="margin-top:16px;"></div>
+                    </div>
+                    <div class="settings-card">
+                        <h3><i class="fas fa-trophy"></i> أكثر الفساتين تأجيراً</h3>
+                        <div id="topDresses"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SETTINGS ===== -->
+        <section class="view" id="viewSettings">
+            <div class="page-header">
+                <h1><i class="fas fa-cog"></i> الإعدادات</h1>
+                <p>إعدادات المحل والنظام</p>
+            </div>
+            <div class="page-content">
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3><i class="fas fa-store"></i> بيانات المحل</h3>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>اسم المحل</label>
+                            <input type="text" id="settShopName" placeholder="اسم المحل" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>رقم الهاتف</label>
+                            <input type="tel" id="settShopPhone" placeholder="رقم هاتف المحل" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>العنوان</label>
+                            <input type="text" id="settShopAddress" placeholder="عنوان المحل" />
+                        </div>
+                        <button class="btn btn-pink" id="saveSettingsBtn"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+                    </div>
+                    <div class="settings-card">
+                        <h3><i class="fas fa-shield-alt"></i> تغيير كلمة المرور</h3>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>كلمة المرور الحالية</label>
+                            <input type="password" id="settOldPass" placeholder="أدخل كلمة المرور الحالية" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>كلمة المرور الجديدة</label>
+                            <input type="password" id="settNewPass" placeholder="أدخل كلمة المرور الجديدة" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>تأكيد كلمة المرور</label>
+                            <input type="password" id="settConfirmPass" placeholder="أعد إدخال كلمة المرور" />
+                        </div>
+                        <button class="btn btn-pink" id="changePassBtn"><i class="fas fa-key"></i> تغيير كلمة المرور</button>
+                    </div>
+                    <div class="settings-card">
+                        <h3><i class="fas fa-database"></i> النسخ الاحتياطي</h3>
+                        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+                            قم بتصدير جميع البيانات كملف احتياطي أو استعادة من نسخة سابقة.
+                        </p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                            <button class="btn btn-green" id="backupBtn"><i class="fas fa-download"></i> تصدير نسخة احتياطية</button>
+                            <label class="btn btn-outline" style="cursor:pointer;">
+                                <i class="fas fa-upload"></i> استعادة نسخة
+                                <input type="file" id="restoreFile" accept=".json" style="display:none;" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== EXPENSES ===== -->
+        <section class="view" id="viewExpenses">
+            <div class="page-header">
+                <h1><i class="fas fa-wallet"></i> المصاريف</h1>
+                <p>تتبع مصاريف المحل والأرباح</p>
+            </div>
+            <div class="page-content">
+                <div class="stats-grid" id="expenseStats"></div>
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="toggleExpenseFormBtn"><i class="fas fa-plus"></i> إضافة مصروف</button>
+                    <button class="btn btn-outline" id="refreshExpensesBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+                </div>
+                <div class="form-add-dress" id="expenseForm">
+                    <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                        <i class="fas fa-receipt text-pink"></i>
+                        <span id="expenseFormTitle">إضافة مصروف جديد</span>
+                    </h3>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>نوع المصروف *</label>
+                            <select id="expenseType">
+                                <option value="">اختر النوع</option>
+                                <option value="إيجار">إيجار</option>
+                                <option value="رواتب">رواتب</option>
+                                <option value="صيانة">صيانة فساتين</option>
+                                <option value="إيجار مكان">إيجار مكان</option>
+                                <option value="فاتورة">فواتير (كهرباء، ماء)</option>
+                                <option value="تسويق">تسويق</option>
+                                <option value="مشتريات">مشتريات فساتين</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>المبلغ *</label>
+                            <input type="number" id="expenseAmount" placeholder="0" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>التاريخ *</label>
+                            <input type="date" id="expenseDate" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea id="expenseDesc" placeholder="وصف المصروف..."></textarea>
+                    </div>
+                    <input type="hidden" id="editExpenseId" value="" />
+                    <div class="form-actions">
+                        <button class="btn btn-pink" id="saveExpenseBtn"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-outline" id="cancelExpenseBtn">إلغاء</button>
+                    </div>
+                </div>
+                <div class="booking-list" id="expensesList"></div>
+            </div>
+        </section>
+
+        <!-- ===== DISCOUNTS ===== -->
+        <section class="view" id="viewDiscounts">
+            <div class="page-header">
+                <h1><i class="fas fa-tag"></i> العروض والخصومات</h1>
+                <p>إنشاء وإدارة عروض التخفيض</p>
+            </div>
+            <div class="page-content">
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="toggleDiscountFormBtn"><i class="fas fa-plus"></i> إضافة عرض</button>
+                </div>
+                <div class="form-add-dress" id="discountForm">
+                    <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                        <i class="fas fa-percent text-pink"></i>
+                        <span>إضافة عرض جديد</span>
+                    </h3>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>اسم العرض *</label>
+                            <input type="text" id="discountName" placeholder="مثال: خصم الصيف" />
+                        </div>
+                        <div class="form-group">
+                            <label>نوع الخصم *</label>
+                            <select id="discountType">
+                                <option value="نسبة">نسبة مئوية (%)</option>
+                                <option value="مبلغ">مبلغ ثابت</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>قيمة الخصم *</label>
+                            <input type="number" id="discountValue" placeholder="0" min="0" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تاريخ البداية</label>
+                            <input type="date" id="discountStart" />
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ النهاية</label>
+                            <input type="date" id="discountEnd" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>كود الخصم (اختياري)</label>
+                        <input type="text" id="discountCode" placeholder="مثال: SUMMER20" style="text-transform:uppercase;" />
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-pink" id="saveDiscountBtn"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-outline" id="cancelDiscountBtn">إلغاء</button>
+                    </div>
+                </div>
+                <div class="booking-list" id="discountsList"></div>
+            </div>
+        </section>
+
+        <!-- ===== MAINTENANCE ===== -->
+        <section class="view" id="viewMaintenance">
+            <div class="page-header">
+                <h1><i class="fas fa-tools"></i> الصيانة</h1>
+                <p>تتبع صيانة وتنظيف الفساتين</p>
+            </div>
+            <div class="page-content">
+                <div class="stats-grid" id="maintenanceStats"></div>
+                <div class="panel-actions">
+                    <button class="btn btn-pink" id="toggleMaintFormBtn"><i class="fas fa-plus"></i> إضافة طلب صيانة</button>
+                </div>
+                <div class="form-add-dress" id="maintForm">
+                    <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                        <i class="fas fa-wrench text-pink"></i>
+                        <span>طلب صيانة جديد</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الفستان *</label>
+                            <select id="maintDressSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>نوع الصيانة *</label>
+                            <select id="maintType">
+                                <option value="">اختر النوع</option>
+                                <option value="تنظيف">تنظيف</option>
+                                <option value="إصلاح">إصلاح</option>
+                                <option value="تطريز">تطريز</option>
+                                <option value="قص">قص</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>التكلفة</label>
+                            <input type="number" id="maintCost" placeholder="0" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>موعد التسليم المتوقع</label>
+                            <input type="date" id="maintDueDate" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات</label>
+                        <textarea id="maintNotes" placeholder="تفاصيل الصيانة المطلوبة..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-pink" id="saveMaintBtn"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-outline" id="cancelMaintBtn">إلغاء</button>
+                    </div>
+                </div>
+                <div class="booking-list" id="maintenanceList"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== MODAL: RENTAL ===== -->
+    <div class="modal-overlay" id="rentalModal">
+        <div class="modal-box">
+            <button class="modal-close" id="rentalModalClose"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-exchange-alt"></i> تأجير فستان</h2>
+            <div class="form-group">
+                <label>اختر الفستان *</label>
+                <select id="rentalDressSelect"></select>
+            </div>
+            <div class="form-group">
+                <label>اختر العميل *</label>
+                <select id="rentalCustomerSelect"></select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>تاريخ التأجير *</label>
+                    <input type="date" id="rentalStartDate" />
+                </div>
+                <div class="form-group">
+                    <label>موعد الإرجاع *</label>
+                    <input type="date" id="rentalEndDate" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>سعر التأجير</label>
+                    <input type="number" id="rentalPrice" placeholder="0" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>الوديعة</label>
+                    <input type="number" id="rentalDeposit" placeholder="0" min="0" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ملاحظات / التعديلات</label>
+                <textarea id="rentalNotes" placeholder="أي ملاحظات أو تعديلات مطلوبة..." rows="3"></textarea>
+            </div>
+            <button class="btn btn-pink w-full" id="confirmRentalBtn"><i class="fas fa-check"></i> تأكيد التأجير</button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: QUICK BOOK ===== -->
+    <div class="modal-overlay" id="quickBookModal">
+        <div class="modal-box" style="max-width:480px;">
+            <button class="modal-close" id="quickBookModalClose"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-calendar-check"></i> حجز سريع</h2>
+            <div class="form-group">
+                <label>الفستان</label>
+                <input type="text" id="qbDressName" readonly style="background:var(--bg-secondary);color:var(--text-muted);" />
+                <input type="hidden" id="qbDressId" />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>تاريخ البداية *</label>
+                    <input type="date" id="qbStartDate" />
+                </div>
+                <div class="form-group">
+                    <label>تاريخ النهاية *</label>
+                    <input type="date" id="qbEndDate" />
+                </div>
+            </div>
+            <div id="qbConflictMsg" style="display:none;color:#ff6b6b;font-size:14px;margin-bottom:10px;padding:8px 12px;background:rgba(255,107,107,0.1);border-radius:8px;border:1px solid rgba(255,107,107,0.3);">
+                <i class="fas fa-exclamation-circle"></i> <span id="qbConflictText"></span>
+            </div>
+            <div class="form-group">
+                <label>سعر التأجير *</label>
+                <input type="number" id="qbPrice" min="0" placeholder="0" />
+            </div>
+            <div class="form-group">
+                <label>الوديعة</label>
+                <input type="number" id="qbDeposit" min="0" placeholder="0" />
+            </div>
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <textarea id="qbNotes" placeholder="ملاحظات..." rows="2"></textarea>
+            </div>
+            <button class="btn btn-pink w-full" id="confirmQuickBookBtn"><i class="fas fa-check"></i> تأكيد الحجز</button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: INVOICE ===== -->
+    <div class="modal-overlay" id="invoiceModal">
+        <div class="modal-box" style="max-width:650px;">
+            <button class="modal-close" id="invoiceModalClose"><i class="fas fa-times"></i></button>
+            <div id="invoiceContent"></div>
+            <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="btn btn-pink" id="printInvoiceBtn"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn btn-green" id="whatsappInvoiceBtn" style="background:linear-gradient(135deg,#25d366,#128c7e);"><i class="fab fa-whatsapp"></i> إرسال واتساب</button>
+                <button class="btn btn-outline" id="closeInvoiceBtn">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  AUTH - بيانات الدخول مشفرة بـ Base64
+        // ============================================================
+        const _uEnc = 'bWFuYWFsXzIyMjI=';
+        const _pEnc = 'TUAyMDQ0';
+        const VALID_USERNAME = atob(_uEnc);
+        let VALID_PASSWORD = atob(_pEnc);
+
+        function checkAuth() {
+            const loggedIn = sessionStorage.getItem('loggedIn');
+            if (loggedIn === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('sidebar').style.display = 'flex';
+            } else {
+                document.getElementById('loginOverlay').classList.remove('hidden');
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('sidebar').style.display = 'none';
+            }
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            const auth = await loadAuth();
+            const currentPassword = auth && auth.password ? auth.password : VALID_PASSWORD;
+
+            if (username === VALID_USERNAME && password === currentPassword) {
+                sessionStorage.setItem('loggedIn', 'true');
+                errorEl.textContent = '';
+                checkAuth();
+                initApp();
+            } else {
+                errorEl.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('loggedIn');
+            checkAuth();
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelector('[data-view="dashboard"]').classList.add('active');
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+        document.getElementById('loginUsername').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+        // ============================================================
+        // ============================================================
+        //  DATA LAYER (localStorage)
+        // ============================================================
+        const LS_KEY = 'dressShopData';
+        const LS_AUTH = 'dressShopAuth';
+
+        function getDefaultData() {
+            return {
+                settings: {
+                    shopName: 'على مودك',
+                    shopPhone: '',
+                    shopAddress: '',
+                    currency: '₪',
+                },
+                dresses: [],
+                customers: [],
+                rentals: [],
+                expenses: [],
+                discounts: [],
+                maintenance: []
+            };
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                if (raw) {
+                    const d = JSON.parse(raw);
+                    const def = getDefaultData();
+                    return {
+                        settings: d.settings || def.settings,
+                        dresses: d.dresses || [],
+                        customers: d.customers || [],
+                        rentals: d.rentals || [],
+                        expenses: d.expenses || [],
+                        discounts: d.discounts || [],
+                        maintenance: d.maintenance || []
+                    };
+                }
+            } catch (e) {
+                console.error('خطأ في تحميل البيانات:', e);
+            }
+            return getDefaultData();
+        }
+
+        function saveData(data) {
+            try {
+                localStorage.setItem(LS_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.error('خطأ في حفظ البيانات:', e);
+            }
+        }
+
+        function saveSettings(settings) {
+            appData.settings = settings;
+            saveData(appData);
+        }
+
+        function saveAuth(auth) {
+            localStorage.setItem(LS_AUTH, JSON.stringify(auth));
+        }
+
+        function loadAuth() {
+            try {
+                const raw = localStorage.getItem(LS_AUTH);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function addDress(dress) {
+            dress.id = uid();
+            appData.dresses.push(dress);
+            saveData(appData);
+            return dress.id;
+        }
+
+        function updateDress(id, data) {
+            const idx = appData.dresses.findIndex(d => d.id === id);
+            if (idx !== -1) {
+                appData.dresses[idx] = { ...appData.dresses[idx], ...data };
+                saveData(appData);
+            }
+        }
+
+        function deleteDressFromDB(id) {
+            appData.dresses = appData.dresses.filter(d => d.id !== id);
+            saveData(appData);
+        }
+
+        function addCustomer(customer) {
+            customer.id = uid();
+            appData.customers.push(customer);
+            saveData(appData);
+            return customer.id;
+        }
+
+        function updateCustomer(id, data) {
+            const idx = appData.customers.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                appData.customers[idx] = { ...appData.customers[idx], ...data };
+                saveData(appData);
+            }
+        }
+
+        function deleteCustomerFromDB(id) {
+            appData.customers = appData.customers.filter(c => c.id !== id);
+            saveData(appData);
+        }
+
+        function addRental(rental) {
+            rental.id = uid();
+            appData.rentals.push(rental);
+            saveData(appData);
+            return rental.id;
+        }
+
+        function updateRental(id, data) {
+            const idx = appData.rentals.findIndex(r => r.id === id);
+            if (idx !== -1) {
+                appData.rentals[idx] = { ...appData.rentals[idx], ...data };
+                saveData(appData);
+            }
+        }
+
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+        function getCurrency() { return appData.settings.currency || 'ر.س'; }
+
+        // ============================================================
+        //  APP STATE
+        // ============================================================
+        let appData = loadData();
+        let currentView = 'dashboard';
+        let editingId = null;
+        let editingCustomerId = null;
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+
+        const views = {
+            dashboard: $('#viewDashboard'),
+            gallery: $('#viewGallery'),
+            customers: $('#viewCustomers'),
+            rentals: $('#viewRentals'),
+            overdue: $('#viewOverdue'),
+            expenses: $('#viewExpenses'),
+            discounts: $('#viewDiscounts'),
+            maintenance: $('#viewMaintenance'),
+            reports: $('#viewReports'),
+            settings: $('#viewSettings'),
+        };
+        const navItems = $$('.nav-item:not(.logout-item)');
+
+        // ============================================================
+        //  DATE HELPERS
+        // ============================================================
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function parseDate(str) {
+            const parts = str.split('-').map(Number);
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+
+        function daysBetween(d1, d2) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            return Math.round((d2 - d1) / oneDay);
+        }
+
+        function getRentalStatus(rental) {
+            if (rental.status === 'مرجع') return 'مرجع';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const endDate = parseDate(rental.endDate);
+            if (today > endDate) return 'متأخر';
+            return 'نشط';
+        }
+
+        // ============================================================
+        //  RENDER: DASHBOARD
+        // ============================================================
+        function renderDashboard() {
+            const totalDresses = appData.dresses.length;
+            const availableDresses = appData.dresses.filter(d => d.status === 'متاحة').length;
+            const totalCustomers = appData.customers.length;
+            const activeRentals = appData.rentals.filter(r => getRentalStatus(r) === 'نشط').length;
+            const overdueRentals = appData.rentals.filter(r => getRentalStatus(r) === 'متأخر').length;
+            const totalRevenue = appData.rentals.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+            const totalExpenses = (appData.expenses || []).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+            const profit = totalRevenue - totalExpenses;
+            const pendingMaintenance = (appData.maintenance || []).filter(m => m.status !== 'مكتمل').length;
+
+            // Monthly stats
+            const now = new Date();
+            const thisMonthRentals = appData.rentals.filter(r => {
+                const d = new Date(r.startDate);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+            const monthRevenue = thisMonthRentals.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+            const monthExpenses = (appData.expenses || []).filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            }).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+            $('#statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalRevenue)} ${getCurrency()}</h3><p>إجمالي الإيرادات</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalExpenses)} ${getCurrency()}</h3><p>إجمالي المصاريف</p></div>
+                </div>
+                <div class="stat-card" style="${profit < 0 ? 'border-color:var(--red);' : ''}">
+                    <div class="stat-icon" style="background:${profit >= 0 ? 'rgba(76,175,80,0.15)' : 'rgba(244,67,54,0.15)'};color:${profit >= 0 ? 'var(--green)' : 'var(--red)'};">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info"><h3>${formatNum(profit)} ${getCurrency()}</h3><p>صافي الربح</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-info"><h3>${formatNum(monthRevenue)} ${getCurrency()}</h3><p>إيرادات الشهر</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="stat-info"><h3>${activeRentals}</h3><p>تأجيرات نشطة</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fas fa-tshirt"></i></div>
+                    <div class="stat-info"><h3>${availableDresses} / ${totalDresses}</h3><p>فساتين متاحة</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-info"><h3>${totalCustomers}</h3><p>العملاء</p></div>
+                </div>
+                <div class="stat-card" style="${overdueRentals === 0 && pendingMaintenance === 0 ? 'opacity:0.5;' : 'border-color:var(--red);'}">
+                    <div class="stat-icon" style="background:${overdueRentals > 0 || pendingMaintenance > 0 ? 'rgba(244,67,54,0.15)' : ''};color:${overdueRentals > 0 || pendingMaintenance > 0 ? 'var(--red)' : 'var(--text-muted)'};">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info"><h3>${overdueRentals + pendingMaintenance}</h3><p>متأخرات + صيانة</p></div>
+                </div>
+            `;
+
+            const recent = [...appData.rentals].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+            if (!recent.length) {
+                $('#recentRentals').innerHTML = '<div class="booking-empty"><i class="fas fa-exchange-alt"></i><p>لا توجد تأجيرات بعد</p></div>';
+                return;
+            }
+            $('#recentRentals').innerHTML = recent.map(r => renderRentalItem(r, false)).join('');
+        }
+
+        function formatNum(n) { return Number(n).toLocaleString('ar-SA'); }
+
+        // ============================================================
+        //  RENDER: GALLERY
+        // ============================================================
+        function renderGallery() {
+            let dresses = [...appData.dresses];
+            const search = ($('#searchDress')?.value || '').toLowerCase();
+            const statusFilter = $('#filterStatus')?.value || '';
+            const catFilter = $('#filterCategory')?.value || '';
+
+            if (search) {
+                dresses = dresses.filter(d =>
+                    d.name.toLowerCase().includes(search) ||
+                    (d.color || '').toLowerCase().includes(search) ||
+                    (d.category || '').toLowerCase().includes(search) ||
+                    (d.description || '').toLowerCase().includes(search)
+                );
+            }
+            if (statusFilter) dresses = dresses.filter(d => d.status === statusFilter);
+            if (catFilter) dresses = dresses.filter(d => d.category === catFilter);
+
+            if (!dresses.length) {
+                $('#galleryGrid').innerHTML = '<div class="booking-empty"><i class="fas fa-tshirt"></i><p>لا توجد فساتين</p></div>';
+                return;
+            }
+
+            const statusMap = {
+                'متاحة': 'status-available',
+                'مؤجرة': 'status-rented',
+                'صيانة': 'status-maintenance',
+            };
+            const statusLabels = { 'متاحة': 'متاحة', 'مؤجرة': 'مؤجرة', 'صيانة': 'صيانة' };
+
+            $('#galleryGrid').innerHTML = dresses.map(d => `
+                <div class="dress-card">
+                    <div class="img-wrap">
+                        ${d.image ? `<img src="${d.image}" alt="${d.name}" />` : `<i class="fas fa-tshirt no-img"></i>`}
+                        <span class="status-badge ${statusMap[d.status] || 'status-available'}">${statusLabels[d.status] || 'متاحة'}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${d.name}</h3>
+                        <div class="desc">${d.description || 'لا يوجد وصف'}</div>
+                        <div class="meta-tags">
+                            ${d.category ? `<span class="meta-tag"><i class="fas fa-tag"></i> ${d.category}</span>` : ''}
+                            ${d.size ? `<span class="meta-tag"><i class="fas fa-ruler"></i> ${d.size}</span>` : ''}
+                            ${d.color ? `<span class="meta-tag"><i class="fas fa-palette"></i> ${d.color}</span>` : ''}
+                            ${d.condition ? `<span class="meta-tag"><i class="fas fa-star"></i> ${d.condition}</span>` : ''}
+                        </div>
+                        <div class="price-line">
+                            <span class="rental-price">${formatNum(d.price || 0)} ${getCurrency()} / يوم</span>
+                            <span class="deposit">وديعة: ${formatNum(d.deposit || 0)}</span>
+                        </div>
+                        <div class="card-actions" style="flex-direction:column;gap:6px;">
+                            <div style="display:flex;gap:6px;">
+                                <button class="btn btn-pink btn-sm" data-id="${d.id}" data-action="quickBook" style="flex:1;">
+                                    <i class="fas fa-calendar-check"></i> حجز
+                                </button>
+                            </div>
+                            <div style="display:flex;gap:6px;">
+                                <button class="btn btn-outline btn-sm" data-id="${d.id}" data-action="editDress" style="flex:1;">
+                                    <i class="fas fa-pen"></i> تعديل
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-id="${d.id}" data-action="deleteDress" style="flex:1;">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            $('#galleryGrid').querySelectorAll('[data-action="editDress"]').forEach(btn => {
+                btn.addEventListener('click', () => editDress(btn.dataset.id));
+            });
+            $('#galleryGrid').querySelectorAll('[data-action="deleteDress"]').forEach(btn => {
+                btn.addEventListener('click', () => deleteDress(btn.dataset.id));
+            });
+            $('#galleryGrid').querySelectorAll('[data-action="quickBook"]').forEach(btn => {
+                btn.addEventListener('click', () => openQuickBookModal(btn.dataset.id));
+            });
+
+            $('#dressesBadge').textContent = appData.dresses.length;
+        }
+
+        // ============================================================
+        //  RENDER: CUSTOMERS
+        // ============================================================
+        function renderCustomers() {
+            let customers = [...appData.customers];
+            const search = ($('#searchCustomer')?.value || '').toLowerCase();
+            if (search) {
+                customers = customers.filter(c =>
+                    c.name.toLowerCase().includes(search) ||
+                    (c.phone || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (!customers.length) {
+                $('#customerGrid').innerHTML = '<div class="booking-empty"><i class="fas fa-users"></i><p>لا يوجد عملاء</p></div>';
+                return;
+            }
+
+            $('#customerGrid').innerHTML = customers.map(c => {
+                const rentalCount = appData.rentals.filter(r => r.customerId === c.id).length;
+                const totalSpent = appData.rentals.filter(r => r.customerId === c.id).reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+                const loyaltyPoints = c.loyaltyPoints || 0;
+                const loyaltyLevel = loyaltyPoints >= 100 ? 'ذهبي' : loyaltyPoints >= 50 ? 'فضي' : 'برونزي';
+                const loyaltyColor = loyaltyPoints >= 100 ? '#ffd700' : loyaltyPoints >= 50 ? '#c0c0c0' : '#cd7f32';
+                return `
+                    <div class="customer-card">
+                        <div class="c-name" style="display:flex;align-items:center;gap:8px;">
+                            ${c.name}
+                            ${loyaltyPoints > 0 ? `<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${loyaltyColor}22;color:${loyaltyColor};border:1px solid ${loyaltyColor}44;">${loyaltyLevel} ${loyaltyPoints} نقطة</span>` : ''}
+                        </div>
+                        <div class="c-info">
+                            <span><i class="fas fa-phone"></i> ${c.phone || '—'}</span>
+                            ${c.email ? `<span><i class="fas fa-envelope"></i> ${c.email}</span>` : ''}
+                            ${c.idNumber ? `<span><i class="fas fa-id-card"></i> ${c.idNumber}</span>` : ''}
+                            ${c.address ? `<span><i class="fas fa-map-marker-alt"></i> ${c.address}</span>` : ''}
+                            <span><i class="fas fa-exchange-alt"></i> ${rentalCount} تأجير | ${formatNum(totalSpent)} ${getCurrency()}</span>
+                        </div>
+                        <div class="c-actions">
+                            ${c.phone ? `<a href="https://wa.me/${c.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>` : ''}
+                            <button class="btn btn-outline btn-sm" data-id="${c.id}" data-action="editCustomer">
+                                <i class="fas fa-pen"></i> تعديل
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-id="${c.id}" data-action="deleteCustomer">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $('#customerGrid').querySelectorAll('[data-action="editCustomer"]').forEach(btn => {
+                btn.addEventListener('click', () => editCustomer(btn.dataset.id));
+            });
+            $('#customerGrid').querySelectorAll('[data-action="deleteCustomer"]').forEach(btn => {
+                btn.addEventListener('click', () => deleteCustomer(btn.dataset.id));
+            });
+        }
+
+        // ============================================================
+        //  RENDER: RENTALS
+        // ============================================================
+        function renderRentalItem(r, showActions = true) {
+            const dress = appData.dresses.find(d => d.id === r.dressId);
+            const customer = appData.customers.find(c => c.id === r.customerId);
+            const status = getRentalStatus(r);
+            const statusColors = { 'نشط': 'var(--green)', 'مرجع': 'var(--text-muted)', 'متأخر': 'var(--red)' };
+            const daysLeft = daysBetween(new Date(), parseDate(r.endDate));
+
+            return `
+                <div class="booking-item" style="${status === 'متأخر' ? 'border-color:var(--red);' : status === 'مرجع' ? 'opacity:0.6;' : ''}">
+                    <div class="thumb">
+                        ${dress && dress.image ? `<img src="${dress.image}" alt="${r.dressName}" />` : `<i class="fas fa-tshirt no-img"></i>`}
+                    </div>
+                    <div class="info">
+                        <div class="name" style="display:flex;align-items:center;gap:10px;">
+                            ${r.dressName}
+                            <span style="font-size:12px;padding:2px 10px;border-radius:20px;color:#fff;background:${statusColors[status]};">${status}</span>
+                        </div>
+                        <div class="meta">
+                            <span><i class="fas fa-user"></i> ${customer ? customer.name : 'عميل غير معروف'}</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${r.startDate} → ${r.endDate}</span>
+                            <span><i class="fas fa-money-bill-wave"></i> ${formatNum(r.price || 0)} ${getCurrency()}</span>
+                            ${r.deposit ? `<span><i class="fas fa-lock"></i> وديعة: ${formatNum(r.deposit)} ${getCurrency()}</span>` : ''}
+                            ${status === 'نشط' ? `<span><i class="fas fa-clock"></i> ${daysLeft >= 0 ? daysLeft + ' يوم متبقي' : 'تأخر ' + Math.abs(daysLeft) + ' يوم'}</span>` : ''}
+                            ${status === 'متأخر' ? `<span style="color:var(--red);"><i class="fas fa-exclamation-circle"></i> تأخر ${Math.abs(daysLeft)} يوم</span>` : ''}
+                        </div>
+                        ${r.notes ? `<div class="mods"><i class="fas fa-sticky-note"></i> ${r.notes}</div>` : ''}
+                    </div>
+                    <div class="actions">
+                        ${showActions && status === 'نشط' ? `
+                            <button class="btn btn-green btn-sm" data-id="${r.id}" data-action="returnRental">
+                                <i class="fas fa-undo"></i> إرجاع
+                            </button>
+                            <button class="btn btn-outline btn-sm" data-id="${r.id}" data-action="printInvoice">
+                                <i class="fas fa-print"></i> فاتورة
+                            </button>
+                        ` : ''}
+                        ${showActions && status === 'متأخر' ? `
+                            <button class="btn btn-green btn-sm" data-id="${r.id}" data-action="returnRental">
+                                <i class="fas fa-undo"></i> إرجاع
+                            </button>
+                            <button class="btn btn-outline btn-sm" data-id="${r.id}" data-action="printInvoice">
+                                <i class="fas fa-print"></i> فاتورة
+                            </button>
+                        ` : ''}
+                        ${showActions && status === 'مرجع' ? `
+                            <button class="btn btn-outline btn-sm" data-id="${r.id}" data-action="printInvoice">
+                                <i class="fas fa-print"></i> فاتورة
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRentals() {
+            let rentals = [...appData.rentals].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const search = ($('#searchRental')?.value || '').toLowerCase();
+            const statusFilter = $('#filterRentalStatus')?.value || '';
+
+            if (search) {
+                rentals = rentals.filter(r => {
+                    const dress = appData.dresses.find(d => d.id === r.dressId);
+                    const customer = appData.customers.find(c => c.id === r.customerId);
+                    return (r.dressName || '').toLowerCase().includes(search) ||
+                           (customer && customer.name.toLowerCase().includes(search));
+                });
+            }
+            if (statusFilter) {
+                rentals = rentals.filter(r => getRentalStatus(r) === statusFilter);
+            }
+
+            if (!rentals.length) {
+                $('#rentalsList').innerHTML = '<div class="booking-empty"><i class="fas fa-exchange-alt"></i><p>لا توجد تأجيرات</p></div>';
+                return;
+            }
+
+            $('#rentalsList').innerHTML = rentals.map(r => renderRentalItem(r, true)).join('');
+            bindRentalActions('#rentalsList');
+            $('#activeRentalsBadge').textContent = appData.rentals.filter(r => getRentalStatus(r) === 'نشط').length;
+        }
+
+        function renderOverdue() {
+            const overdue = appData.rentals.filter(r => getRentalStatus(r) === 'متأخر');
+            if (!overdue.length) {
+                $('#overdueList').innerHTML = '<div class="booking-empty"><i class="fas fa-check-circle"></i><p>لا توجد تأجيرات متأخرة</p></div>';
+                $('#overdueBadge').textContent = '0';
+                return;
+            }
+            $('#overdueList').innerHTML = overdue.map(r => renderRentalItem(r, true)).join('');
+            bindRentalActions('#overdueList');
+            $('#overdueBadge').textContent = overdue.length;
+        }
+
+        // ============================================================
+        //  RENDER: EXPENSES
+        // ============================================================
+        function renderExpenses() {
+            const expenses = [...(appData.expenses || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const totalExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+            const totalRevenue = appData.rentals.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+            const profit = totalRevenue - totalExpenses;
+            const thisMonth = expenses.filter(e => {
+                const d = new Date(e.date);
+                const now = new Date();
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+            const monthExpenses = thisMonth.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+            $('#expenseStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalRevenue)} ${getCurrency()}</h3><p>إجمالي الإيرادات</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalExpenses)} ${getCurrency()}</h3><p>إجمالي المصاريف</p></div>
+                </div>
+                <div class="stat-card" style="${profit < 0 ? 'border-color:var(--red);' : ''}">
+                    <div class="stat-icon" style="background:${profit >= 0 ? 'rgba(76,175,80,0.15)' : 'rgba(244,67,54,0.15)'};color:${profit >= 0 ? 'var(--green)' : 'var(--red)'};">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info"><h3>${formatNum(profit)} ${getCurrency()}</h3><p>صافي الربح</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-calendar"></i></div>
+                    <div class="stat-info"><h3>${formatNum(monthExpenses)} ${getCurrency()}</h3><p>مصاريف الشهر</p></div>
+                </div>
+            `;
+
+            if (!expenses.length) {
+                $('#expensesList').innerHTML = '<div class="booking-empty"><i class="fas fa-wallet"></i><p>لا توجد مصاريف مسجلة</p></div>';
+                return;
+            }
+
+            $('#expensesList').innerHTML = expenses.map(e => `
+                <div class="booking-item">
+                    <div class="thumb" style="background:rgba(255,152,0,0.15);display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-receipt" style="font-size:24px;color:var(--orange);"></i>
+                    </div>
+                    <div class="info">
+                        <div class="name">${e.type}</div>
+                        <div class="meta">
+                            <span><i class="fas fa-calendar-alt"></i> ${e.date}</span>
+                            <span style="color:var(--orange);font-weight:700;"><i class="fas fa-money-bill-wave"></i> ${formatNum(e.amount)} ${getCurrency()}</span>
+                        </div>
+                        ${e.description ? `<div class="mods">${e.description}</div>` : ''}
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" data-id="${e.id}" data-action="editExpense"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm" data-id="${e.id}" data-action="deleteExpense"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            $('#expensesList').querySelectorAll('[data-action="editExpense"]').forEach(btn => {
+                btn.addEventListener('click', () => editExpense(btn.dataset.id));
+            });
+            $('#expensesList').querySelectorAll('[data-action="deleteExpense"]').forEach(btn => {
+                btn.addEventListener('click', () => deleteExpense(btn.dataset.id));
+            });
+        }
+
+        async function saveExpense() {
+            const type = $('#expenseType').value;
+            const amount = Number($('#expenseAmount').value);
+            const date = $('#expenseDate').value;
+            if (!type || !amount || !date) { showToast('يرجى ملء جميع الحقول المطلوبة', 'error'); return; }
+
+            const expenseData = {
+                type,
+                amount,
+                date,
+                description: $('#expenseDesc').value.trim(),
+            };
+
+            const editId = $('#editExpenseId').value;
+            if (editId) {
+                const idx = (appData.expenses || []).findIndex(e => e.id === editId);
+                if (idx !== -1) {
+                    expenseData.id = editId;
+                    appData.expenses[idx] = expenseData;
+                }
+            } else {
+                expenseData.id = uid();
+                appData.expenses = appData.expenses || [];
+                appData.expenses.push(expenseData);
+            }
+
+            saveData(appData);
+            resetExpenseForm();
+            refreshAllViews();
+            showToast(editId ? 'تم تحديث المصروف' : 'تم إضافة المصروف');
+        }
+
+        function editExpense(id) {
+            const expense = (appData.expenses || []).find(e => e.id === id);
+            if (!expense) return;
+            $('#editExpenseId').value = id;
+            $('#expenseType').value = expense.type;
+            $('#expenseAmount').value = expense.amount;
+            $('#expenseDate').value = expense.date;
+            $('#expenseDesc').value = expense.description || '';
+            $('#expenseFormTitle').textContent = 'تعديل المصروف';
+            $('#expenseForm').classList.add('open');
+        }
+
+        async function deleteExpense(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
+            appData.expenses = (appData.expenses || []).filter(e => e.id !== id);
+            saveData(appData);
+            refreshAllViews();
+            showToast('تم حذف المصروف');
+        }
+
+        function resetExpenseForm() {
+            $('#expenseForm').classList.remove('open');
+            $('#expenseType').value = '';
+            $('#expenseAmount').value = '';
+            $('#expenseDate').value = '';
+            $('#expenseDesc').value = '';
+            $('#editExpenseId').value = '';
+            $('#expenseFormTitle').textContent = 'إضافة مصروف جديد';
+        }
+
+        // ============================================================
+        //  RENDER: DISCOUNTS
+        // ============================================================
+        function renderDiscounts() {
+            const discounts = appData.discounts || [];
+            if (!discounts.length) {
+                $('#discountsList').innerHTML = '<div class="booking-empty"><i class="fas fa-tag"></i><p>لا توجد عروض</p></div>';
+                return;
+            }
+
+            $('#discountsList').innerHTML = discounts.map(d => {
+                const isActive = new Date(d.endDate || '2099-12-31') >= new Date();
+                return `
+                    <div class="booking-item" style="${!isActive ? 'opacity:0.5;' : ''}">
+                        <div class="thumb" style="background:rgba(233,30,99,0.15);display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-percent" style="font-size:24px;color:var(--pink);"></i>
+                        </div>
+                        <div class="info">
+                            <div class="name" style="display:flex;align-items:center;gap:10px;">
+                                ${d.name}
+                                <span style="font-size:12px;padding:2px 10px;border-radius:20px;color:#fff;background:${isActive ? 'var(--green)' : 'var(--text-muted)'};">${isActive ? 'نشط' : 'منتهي'}</span>
+                            </div>
+                            <div class="meta">
+                                <span><i class="fas fa-percent"></i> ${d.type === 'نسبة' ? d.value + '%' : formatNum(d.value) + ' ' + getCurrency()}</span>
+                                ${d.startDate ? `<span><i class="fas fa-calendar"></i> ${d.startDate} → ${d.endDate || 'مفتوح'}</span>` : ''}
+                                ${d.code ? `<span style="background:rgba(233,30,99,0.1);padding:2px 10px;border-radius:10px;border:1px solid var(--border-pink);">${d.code}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-danger btn-sm" data-id="${d.id}" data-action="deleteDiscount"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $('#discountsList').querySelectorAll('[data-action="deleteDiscount"]').forEach(btn => {
+                btn.addEventListener('click', () => deleteDiscount(btn.dataset.id));
+            });
+        }
+
+        async function saveDiscount() {
+            const name = $('#discountName').value.trim();
+            const value = Number($('#discountValue').value);
+            if (!name || !value) { showToast('يرجى إدخال اسم القيمة', 'error'); return; }
+
+            const discountData = {
+                id: uid(),
+                name,
+                type: $('#discountType').value,
+                value,
+                startDate: $('#discountStart').value,
+                endDate: $('#discountEnd').value,
+                code: $('#discountCode').value.trim().toUpperCase(),
+                createdAt: new Date().toISOString(),
+            };
+
+            appData.discounts = appData.discounts || [];
+            appData.discounts.push(discountData);
+            saveData(appData);
+
+            resetDiscountForm();
+            refreshAllViews();
+            showToast('تم إضافة العرض');
+        }
+
+        async function deleteDiscount(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا العرض؟')) return;
+            appData.discounts = (appData.discounts || []).filter(d => d.id !== id);
+            saveData(appData);
+            refreshAllViews();
+            showToast('تم حذف العرض');
+        }
+
+        function resetDiscountForm() {
+            $('#discountForm').classList.remove('open');
+            $('#discountName').value = '';
+            $('#discountType').value = 'نسبة';
+            $('#discountValue').value = '';
+            $('#discountStart').value = '';
+            $('#discountEnd').value = '';
+            $('#discountCode').value = '';
+        }
+
+        // ============================================================
+        //  RENDER: MAINTENANCE
+        // ============================================================
+        function renderMaintenance() {
+            const maintenance = (appData.maintenance || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const pending = maintenance.filter(m => m.status === 'معلق');
+            const inProgress = maintenance.filter(m => m.status === 'قيد التنفيذ');
+            const completed = maintenance.filter(m => m.status === 'مكتمل');
+            const totalCost = maintenance.reduce((sum, m) => sum + (Number(m.cost) || 0), 0);
+
+            $('#maintenanceStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-info"><h3>${pending.length}</h3><p>صيانة معلقة</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-cog fa-spin"></i></div>
+                    <div class="stat-info"><h3>${inProgress.length}</h3><p>قيد التنفيذ</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info"><h3>${completed.length}</h3><p>مكتملة</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fas fa-money-bill"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalCost)} ${getCurrency()}</h3><p>تكلفة الصيانة</p></div>
+                </div>
+            `;
+
+            $('#maintenanceBadge').textContent = pending.length + inProgress.length;
+
+            if (!maintenance.length) {
+                $('#maintenanceList').innerHTML = '<div class="booking-empty"><i class="fas fa-tools"></i><p>لا توجد طلبات صيانة</p></div>';
+                return;
+            }
+
+            const statusColors = { 'معلق': 'var(--orange)', 'قيد التنفيذ': 'var(--blue)', 'مكتمل': 'var(--green)' };
+            $('#maintenanceList').innerHTML = maintenance.map(m => {
+                const dress = appData.dresses.find(d => d.id === m.dressId);
+                return `
+                    <div class="booking-item">
+                        <div class="thumb">
+                            ${dress && dress.image ? `<img src="${dress.image}" alt="${dress.dressName}" />` : `<i class="fas fa-tshirt no-img"></i>`}
+                        </div>
+                        <div class="info">
+                            <div class="name" style="display:flex;align-items:center;gap:10px;">
+                                ${dress ? dress.name : 'فستان محذوف'}
+                                <span style="font-size:12px;padding:2px 10px;border-radius:20px;color:#fff;background:${statusColors[m.status] || 'var(--text-muted)'};">${m.status}</span>
+                            </div>
+                            <div class="meta">
+                                <span><i class="fas fa-wrench"></i> ${m.type}</span>
+                                ${m.cost ? `<span><i class="fas fa-money-bill"></i> ${formatNum(m.cost)} ${getCurrency()}</span>` : ''}
+                                ${m.dueDate ? `<span><i class="fas fa-calendar"></i> موعد التسليم: ${m.dueDate}</span>` : ''}
+                            </div>
+                            ${m.notes ? `<div class="mods">${m.notes}</div>` : ''}
+                        </div>
+                        <div class="actions">
+                            ${m.status !== 'مكتمل' ? `
+                                <select class="maint-status-select" data-id="${m.id}" style="background:var(--bg-secondary);border:1px solid var(--border-pink);border-radius:6px;padding:6px 10px;color:var(--text-primary);font-family:'Almarai';font-size:12px;">
+                                    <option value="معلق" ${m.status === 'معلق' ? 'selected' : ''}>معلق</option>
+                                    <option value="قيد التنفيذ" ${m.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option>
+                                    <option value="مكتمل" ${m.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
+                                </select>
+                            ` : ''}
+                            <button class="btn btn-danger btn-sm" data-id="${m.id}" data-action="deleteMaint"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $$('.maint-status-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const id = this.dataset.id;
+                    const newStatus = this.value;
+                    const idx = appData.maintenance.findIndex(m => m.id === id);
+                    if (idx !== -1) {
+                        appData.maintenance[idx].status = newStatus;
+                        saveData(appData);
+                        refreshAllViews();
+                        showToast('تم تحديث الحالة');
+                    }
+                });
+            });
+
+            $('#maintenanceList').querySelectorAll('[data-action="deleteMaint"]').forEach(btn => {
+                btn.addEventListener('click', () => deleteMaintenance(btn.dataset.id));
+            });
+        }
+
+        async function saveMaintenance() {
+            const dressId = $('#maintDressSelect').value;
+            const type = $('#maintType').value;
+            if (!dressId || !type) { showToast('يرجى ملء جميع الحقول المطلوبة', 'error'); return; }
+
+            const dress = appData.dresses.find(d => d.id === dressId);
+            const maintData = {
+                id: uid(),
+                dressId,
+                dressName: dress ? dress.name : '',
+                type,
+                cost: Number($('#maintCost').value) || 0,
+                dueDate: $('#maintDueDate').value,
+                notes: $('#maintNotes').value.trim(),
+                status: 'معلق',
+                createdAt: new Date().toISOString(),
+            };
+
+            appData.maintenance = appData.maintenance || [];
+            appData.maintenance.push(maintData);
+            saveData(appData);
+
+            resetMaintForm();
+            refreshAllViews();
+            showToast('تم إضافة طلب الصيانة');
+        }
+
+        async function deleteMaintenance(id) {
+            if (!confirm('هل أنت متأكد من حذف طلب الصيانة؟')) return;
+            appData.maintenance = (appData.maintenance || []).filter(m => m.id !== id);
+            saveData(appData);
+            refreshAllViews();
+            showToast('تم حذف طلب الصيانة');
+        }
+
+        function resetMaintForm() {
+            $('#maintForm').classList.remove('open');
+            $('#maintDressSelect').value = '';
+            $('#maintType').value = '';
+            $('#maintCost').value = '';
+            $('#maintDueDate').value = '';
+            $('#maintNotes').value = '';
+        }
+
+        function bindRentalActions(containerSelector) {
+            $$(containerSelector + ' [data-action="returnRental"]').forEach(btn => {
+                btn.addEventListener('click', () => returnRental(btn.dataset.id));
+            });
+            $$(containerSelector + ' [data-action="printInvoice"]').forEach(btn => {
+                btn.addEventListener('click', () => showInvoice(btn.dataset.id));
+            });
+        }
+
+        function updateBadges() {
+            $('#dressesBadge').textContent = appData.dresses.length;
+            $('#activeRentalsBadge').textContent = appData.rentals.filter(r => getRentalStatus(r) === 'نشط').length;
+            $('#overdueBadge').textContent = appData.rentals.filter(r => getRentalStatus(r) === 'متأخر').length;
+        }
+
+        // ============================================================
+        //  RENDER: REPORTS
+        // ============================================================
+        function renderReports() {
+            const totalRevenue = appData.rentals.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+            const totalDeposits = appData.rentals.filter(r => r.status !== 'مرجع').reduce((sum, r) => sum + (Number(r.deposit) || 0), 0);
+            const totalRentals = appData.rentals.length;
+            const activeRentals = appData.rentals.filter(r => getRentalStatus(r) === 'نشط').length;
+
+            $('#reportStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalRevenue)} ${getCurrency()}</h3><p>إجمالي الإيرادات</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-lock"></i></div>
+                    <div class="stat-info"><h3>${formatNum(totalDeposits)} ${getCurrency()}</h3><p>الودائع المحتجزة</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="stat-info"><h3>${totalRentals}</h3><p>إجمالي التأجيرات</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info"><h3>${activeRentals}</h3><p>تأجيرات نشطة</p></div>
+                </div>
+            `;
+
+            const dressCounts = {};
+            appData.rentals.forEach(r => {
+                dressCounts[r.dressName] = (dressCounts[r.dressName] || 0) + 1;
+            });
+            const sorted = Object.entries(dressCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            if (!sorted.length) {
+                $('#topDresses').innerHTML = '<p style="color:var(--text-muted);">لا توجد بيانات بعد</p>';
+            } else {
+                $('#topDresses').innerHTML = sorted.map((item, i) => `
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-pink);font-size:14px;">
+                        <span>${i + 1}. ${item[0]}</span>
+                        <span style="color:var(--pink);font-weight:700;">${item[1]} مرة</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function generatePeriodReport() {
+            const from = $('#reportFrom').value;
+            const to = $('#reportTo').value;
+            if (!from || !to) {
+                showToast('يرجى تحديد الفترة', 'error');
+                return;
+            }
+            const rentals = appData.rentals.filter(r => r.startDate >= from && r.startDate <= to);
+            const revenue = rentals.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
+            const deposits = rentals.reduce((sum, r) => sum + (Number(r.deposit) || 0), 0);
+            const returned = rentals.filter(r => r.status === 'مرجع').length;
+
+            $('#reportResult').innerHTML = `
+                <div class="stats-grid" style="margin-top:0;">
+                    <div class="stat-card">
+                        <div class="stat-icon pink"><i class="fas fa-calendar"></i></div>
+                        <div class="stat-info"><h3>${rentals.length}</h3><p>تأجيرات في الفترة</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-money-bill"></i></div>
+                        <div class="stat-info"><h3>${formatNum(revenue)} ${getCurrency()}</h3><p>إيرادات الفترة</p></div>
+                    </div>
+                </div>
+                <div class="report-table" style="margin-top:16px;">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>الفستان</th>
+                                <th>العميل</th>
+                                <th>التاريخ</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rentals.map(r => {
+                                const customer = appData.customers.find(c => c.id === r.customerId);
+                                return `<tr>
+                                    <td>${r.dressName}</td>
+                                    <td>${customer ? customer.name : '—'}</td>
+                                    <td>${r.startDate}</td>
+                                    <td>${formatNum(r.price || 0)} ${getCurrency()}</td>
+                                    <td>${getRentalStatus(r)}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // ============================================================
+        //  RENDER: SETTINGS
+        // ============================================================
+        function renderSettings() {
+            $('#settShopName').value = appData.settings.shopName || '';
+            $('#settShopPhone').value = appData.settings.shopPhone || '';
+            $('#settShopAddress').value = appData.settings.shopAddress || '';
+            updateBrandDisplay();
+        }
+
+        function updateBrandDisplay() {
+            const name = appData.settings.shopName || 'على مودك';
+            $('#brandName').textContent = name;
+            document.getElementById('loginTitle').textContent = name;
+        }
+
+        // ============================================================
+        //  DRESS CRUD
+        // ============================================================
+        function editDress(id) {
+            const dress = appData.dresses.find(d => d.id === id);
+            if (!dress) return;
+            editingId = id;
+            $('#editId').value = id;
+            $('#dressName').value = dress.name;
+            $('#dressDesc').value = dress.description || '';
+            $('#dressCategory').value = dress.category || '';
+            $('#dressSize').value = dress.size || '';
+            $('#dressColor').value = dress.color || '';
+            $('#dressCondition').value = dress.condition || 'جديدة';
+            $('#dressPrice').value = dress.price || '';
+            $('#dressDeposit').value = dress.deposit || '';
+            if (dress.image) {
+                $('#previewImg').src = dress.image;
+                $('#imagePreview').style.display = 'block';
+            } else {
+                $('#imagePreview').style.display = 'none';
+            }
+            $('#formTitle').textContent = 'تعديل الفستان';
+            $('#dressForm').classList.add('open');
+            $('#dressForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function deleteDress(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا الفستان؟ سيتم حذف جميع تأجيراته أيضاً.')) return;
+            await deleteDressFromDB(id);
+            appData.dresses = appData.dresses.filter(d => d.id !== id);
+            appData.rentals = appData.rentals.filter(r => r.dressId !== id);
+            saveData(appData);
+            refreshAllViews();
+            showToast('تم حذف الفستان');
+        }
+
+        async function saveDress() {
+            const name = $('#dressName').value.trim();
+            if (!name) { showToast('يرجى إدخال اسم الفستان', 'error'); return; }
+
+            const dressData = {
+                name,
+                description: $('#dressDesc').value.trim(),
+                category: $('#dressCategory').value,
+                size: $('#dressSize').value,
+                color: $('#dressColor').value.trim(),
+                condition: $('#dressCondition').value,
+                price: Number($('#dressPrice').value) || 0,
+                deposit: Number($('#dressDeposit').value) || 0,
+                status: 'متاحة',
+            };
+
+            const editIdVal = $('#editId').value;
+
+            const saveWithImage = async (img) => {
+                if (editIdVal) {
+                    const idx = appData.dresses.findIndex(d => d.id === editIdVal);
+                    if (idx === -1) return;
+                    dressData.id = editIdVal;
+                    dressData.image = img || appData.dresses[idx].image || '';
+                    dressData.status = appData.dresses[idx].status;
+                    appData.dresses[idx] = dressData;
+                    await updateDress(editIdVal, dressData);
+                    appData.rentals.forEach(async (r) => {
+                        if (r.dressId === editIdVal) {
+                            r.dressName = name;
+                            if (img) r.dressImage = img;
+                            await updateRental(r.id, r);
+                        }
+                    });
+                } else {
+                    dressData.id = uid();
+                    dressData.image = img || '';
+                    addDress(dressData);
+                }
+                resetDressForm();
+                refreshAllViews();
+                showToast(editIdVal ? 'تم تحديث الفستان' : 'تم إضافة الفستان');
+            };
+
+            if ($('#dressImage').files && $('#dressImage').files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveWithImage(e.target.result);
+                reader.readAsDataURL($('#dressImage').files[0]);
+            } else {
+                saveWithImage($('#previewImg').src && $('#previewImg').src.startsWith('data:') ? $('#previewImg').src : '');
+            }
+        }
+
+        function resetDressForm() {
+            $('#dressForm').classList.remove('open');
+            $('#dressName').value = '';
+            $('#dressDesc').value = '';
+            $('#dressCategory').value = '';
+            $('#dressSize').value = '';
+            $('#dressColor').value = '';
+            $('#dressCondition').value = 'جديدة';
+            $('#dressPrice').value = '';
+            $('#dressDeposit').value = '';
+            $('#dressImage').value = '';
+            $('#editId').value = '';
+            editingId = null;
+            $('#imagePreview').style.display = 'none';
+            $('#previewImg').src = '';
+            $('#formTitle').textContent = 'إضافة فستان جديد';
+        }
+
+        // ============================================================
+        //  CUSTOMER CRUD
+        // ============================================================
+        function editCustomer(id) {
+            const customer = appData.customers.find(c => c.id === id);
+            if (!customer) return;
+            editingCustomerId = id;
+            $('#editCustomerId').value = id;
+            $('#customerName').value = customer.name;
+            $('#customerPhone').value = customer.phone || '';
+            $('#customerEmail').value = customer.email || '';
+            $('#customerIdNum').value = customer.idNumber || '';
+            $('#customerAddress').value = customer.address || '';
+            $('#customerNotes').value = customer.notes || '';
+            $('#customerFormTitle').textContent = 'تعديل بيانات العميل';
+            $('#customerForm').classList.add('open');
+            $('#customerForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function deleteCustomer(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا العميل؟')) return;
+            await deleteCustomerFromDB(id);
+            appData.customers = appData.customers.filter(c => c.id !== id);
+            refreshAllViews();
+            showToast('تم حذف العميل');
+        }
+
+        async function saveCustomer() {
+            const name = $('#customerName').value.trim();
+            const phone = $('#customerPhone').value.trim();
+            if (!name || !phone) { showToast('يرجى إدخال الاسم ورقم الهاتف', 'error'); return; }
+
+            const customerData = {
+                name,
+                phone,
+                email: $('#customerEmail').value.trim(),
+                idNumber: $('#customerIdNum').value.trim(),
+                address: $('#customerAddress').value.trim(),
+                notes: $('#customerNotes').value.trim(),
+            };
+
+            const editIdVal = $('#editCustomerId').value;
+            if (editIdVal) {
+                const idx = appData.customers.findIndex(c => c.id === editIdVal);
+                if (idx === -1) return;
+                customerData.id = editIdVal;
+                appData.customers[idx] = customerData;
+                await updateCustomer(editIdVal, customerData);
+            } else {
+                customerData.id = uid();
+                customerData.createdAt = new Date().toISOString();
+                await addCustomer(customerData);
+                appData.customers.push(customerData);
+            }
+
+            resetCustomerForm();
+            refreshAllViews();
+            showToast(editIdVal ? 'تم تحديث بيانات العميل' : 'تم إضافة العميل');
+        }
+
+        function resetCustomerForm() {
+            $('#customerForm').classList.remove('open');
+            $('#customerName').value = '';
+            $('#customerPhone').value = '';
+            $('#customerEmail').value = '';
+            $('#customerIdNum').value = '';
+            $('#customerAddress').value = '';
+            $('#customerNotes').value = '';
+            $('#editCustomerId').value = '';
+            editingCustomerId = null;
+            $('#customerFormTitle').textContent = 'إضافة عميل جديد';
+        }
+
+        // ============================================================
+        //  RENTAL CRUD
+        // ============================================================
+        function openRentalModal() {
+            const availableDresses = appData.dresses.filter(d => d.status === 'متاحة');
+            if (!availableDresses.length) {
+                showToast('لا توجد فساتين متاحة للتأجير', 'error');
+                return;
+            }
+            if (!appData.customers.length) {
+                showToast('يرجى إضافة عميل أولاً', 'error');
+                return;
+            }
+
+            $('#rentalDressSelect').innerHTML = availableDresses.map(d =>
+                `<option value="${d.id}">${d.name} - ${formatNum(d.price)} ${getCurrency()}/يوم</option>`
+            ).join('');
+            $('#rentalCustomerSelect').innerHTML = appData.customers.map(c =>
+                `<option value="${c.id}">${c.name} - ${c.phone}</option>`
+            ).join('');
+
+            const today = formatDate(new Date());
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            $('#rentalStartDate').value = today;
+            $('#rentalEndDate').value = formatDate(tomorrow);
+
+            const firstDress = availableDresses[0];
+            $('#rentalPrice').value = firstDress.price || '';
+            $('#rentalDeposit').value = firstDress.deposit || '';
+            $('#rentalNotes').value = '';
+
+            $('#rentalDressSelect').addEventListener('change', function() {
+                const dress = appData.dresses.find(d => d.id === this.value);
+                if (dress) {
+                    $('#rentalPrice').value = dress.price || '';
+                    $('#rentalDeposit').value = dress.deposit || '';
+                }
+            });
+
+            $('#rentalModal').classList.add('open');
+        }
+
+        function closeRentalModal() {
+            $('#rentalModal').classList.remove('open');
+        }
+
+        // Quick Book Modal
+        function openQuickBookModal(dressId) {
+            const dress = appData.dresses.find(d => d.id === dressId);
+            if (!dress) return;
+
+            $('#qbDressId').value = dress.id;
+            $('#qbDressName').value = dress.name;
+            $('#qbPrice').value = dress.price || 0;
+            $('#qbDeposit').value = dress.deposit || 0;
+
+            // Default dates
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            $('#qbStartDate').value = todayStr;
+            const end = new Date(today);
+            end.setDate(end.getDate() + 2);
+            $('#qbEndDate').value = end.toISOString().split('T')[0];
+
+            // Hide conflict message
+            $('#qbConflictMsg').style.display = 'none';
+            $('#confirmQuickBookBtn').disabled = false;
+            $('#confirmQuickBookBtn').style.opacity = '1';
+
+            // Real-time conflict check
+            function checkQbConflict() {
+                const sd = $('#qbStartDate').value;
+                const ed = $('#qbEndDate').value;
+                if (!sd || !ed) {
+                    $('#qbConflictMsg').style.display = 'none';
+                    $('#confirmQuickBookBtn').disabled = false;
+                    $('#confirmQuickBookBtn').style.opacity = '1';
+                    return;
+                }
+                const conflict = hasDateConflict(dressId, sd, ed, null);
+                if (conflict) {
+                    $('#qbConflictText').textContent = 'تعارض مع حجز موجود: ' + conflict.startDate + ' → ' + conflict.endDate;
+                    $('#qbConflictMsg').style.display = 'block';
+                    $('#confirmQuickBookBtn').disabled = true;
+                    $('#confirmQuickBookBtn').style.opacity = '0.5';
+                } else {
+                    $('#qbConflictMsg').style.display = 'none';
+                    $('#confirmQuickBookBtn').disabled = false;
+                    $('#confirmQuickBookBtn').style.opacity = '1';
+                }
+            }
+
+            $('#qbStartDate').onchange = checkQbConflict;
+            $('#qbEndDate').onchange = checkQbConflict;
+
+            $('#quickBookModal').classList.add('open');
+        }
+
+        function closeQuickBookModal() {
+            $('#quickBookModal').classList.remove('open');
+        }
+
+        async function confirmQuickBook() {
+            const dressId = $('#qbDressId').value;
+            const startDate = $('#qbStartDate').value;
+            const endDate = $('#qbEndDate').value;
+            const price = Number($('#qbPrice').value) || 0;
+            const deposit = Number($('#qbDeposit').value) || 0;
+            const notes = $('#qbNotes').value.trim();
+
+            if (!startDate || !endDate) {
+                showToast('يرجى اختيار التاريخين', 'error');
+                return;
+            }
+            if (endDate < startDate) {
+                showToast('تاريخ النهاية يجب أن يكون بعد تاريخ البداية', 'error');
+                return;
+            }
+
+            // Check date conflict
+            const conflict = hasDateConflict(dressId, startDate, endDate, null);
+            if (conflict) {
+                showToast('تعارض مع حجز موجود: ' + conflict.startDate + ' → ' + conflict.endDate, 'error');
+                return;
+            }
+
+            // Calculate days
+            const d1 = new Date(startDate);
+            const d2 = new Date(endDate);
+            const days = Math.round((d2 - d1) / 86400000) + 1;
+
+            const rental = {
+                dressId,
+                startDate,
+                endDate,
+                price,
+                deposit,
+                notes,
+                status: 'نشط',
+                createdAt: new Date().toISOString(),
+                days,
+            };
+
+            addRental(rental);
+
+            // Update dress status
+            const dressIdx = appData.dresses.findIndex(d => d.id === dressId);
+            if (dressIdx !== -1) {
+                appData.dresses[dressIdx].status = 'مؤجرة';
+                saveData(appData);
+            }
+
+            closeQuickBookModal();
+            refreshAllViews();
+            showToast('تم الحجز بنجاح! المدة: ' + days + ' أيام');
+        }
+
+        function hasDateConflict(dressId, newStart, newEnd, excludeRentalId) {
+            const activeRentals = appData.rentals.filter(r =>
+                r.dressId === dressId &&
+                r.status !== 'مرجع' &&
+                r.id !== excludeRentalId
+            );
+            for (const r of activeRentals) {
+                const rStart = r.startDate;
+                const rEnd = r.endDate;
+                if (newStart <= rEnd && newEnd >= rStart) {
+                    return r;
+                }
+            }
+            return null;
+        }
+
+        async function confirmRental() {
+            const dressId = $('#rentalDressSelect').value;
+            const customerId = $('#rentalCustomerSelect').value;
+            const startDate = $('#rentalStartDate').value;
+            const endDate = $('#rentalEndDate').value;
+
+            if (!dressId || !customerId || !startDate || !endDate) {
+                showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+
+            if (endDate < startDate) {
+                showToast('تاريخ الإرجاع يجب أن يكون بعد تاريخ التأجير', 'error');
+                return;
+            }
+
+            const conflict = hasDateConflict(dressId, startDate, endDate, null);
+            if (conflict) {
+                showToast(`تعارض مواعيد! الفستان محجوز من ${conflict.startDate} إلى ${conflict.endDate}`, 'error');
+                return;
+            }
+
+            const dress = appData.dresses.find(d => d.id === dressId);
+            const customer = appData.customers.find(c => c.id === customerId);
+            if (!dress || !customer) return;
+
+            const rentalPrice = Number($('#rentalPrice').value) || 0;
+
+            const rental = {
+                id: uid(),
+                dressId,
+                dressName: dress.name,
+                dressImage: dress.image || '',
+                customerId,
+                customerName: customer.name,
+                startDate,
+                endDate,
+                price: rentalPrice,
+                deposit: Number($('#rentalDeposit').value) || 0,
+                notes: $('#rentalNotes').value.trim(),
+                status: 'نشط',
+                createdAt: new Date().toISOString(),
+            };
+
+            await addRental(rental);
+            appData.rentals.push(rental);
+            dress.status = 'مؤجرة';
+            await updateDress(dressId, dress);
+
+            const loyaltyPoints = Math.floor(rentalPrice / 10);
+            if (loyaltyPoints > 0) {
+                customer.loyaltyPoints = (customer.loyaltyPoints || 0) + loyaltyPoints;
+                await updateCustomer(customerId, customer);
+            }
+
+            closeRentalModal();
+            refreshAllViews();
+            showToast(`تم تأجير الفستان بنجاح! ${loyaltyPoints > 0 ? `(+${loyaltyPoints} نقطة ولاء)` : ''}`);
+        }
+
+        async function returnRental(id) {
+            const rental = appData.rentals.find(r => r.id === id);
+            if (!rental) return;
+            if (!confirm(`هل تريد إرجاع الفستان "${rental.dressName}"؟`)) return;
+
+            rental.status = 'مرجع';
+            rental.returnDate = formatDate(new Date());
+            await updateRental(rental.id, rental);
+            const dress = appData.dresses.find(d => d.id === rental.dressId);
+            if (dress) {
+                dress.status = 'متاحة';
+                await updateDress(dress.id, dress);
+            }
+            refreshAllViews();
+            showToast('تم إرجاع الفستان بنجاح');
+        }
+
+        // ============================================================
+        //  INVOICE
+        // ============================================================
+        function showInvoice(rentalId) {
+            const rental = appData.rentals.find(r => r.id === rentalId);
+            if (!rental) return;
+            const customer = appData.customers.find(c => c.id === rental.customerId);
+            const days = daysBetween(parseDate(rental.startDate), parseDate(rental.endDate)) || 1;
+            const total = rental.price;
+
+            const shopName = appData.settings.shopName || 'على مودك';
+            const shopPhone = appData.settings.shopPhone || '';
+            const shopAddress = appData.settings.shopAddress || '';
+            const currency = getCurrency();
+
+            $('#invoiceContent').innerHTML = `
+                <div class="invoice-preview" id="printableInvoice">
+                    <div class="inv-header">
+                        <div>
+                            <h2>${shopName}</h2>
+                            <p style="font-size:13px;color:#666;margin-top:4px;">${shopPhone ? 'هاتف: ' + shopPhone : ''}</p>
+                            <p style="font-size:13px;color:#666;">${shopAddress || ''}</p>
+                        </div>
+                        <div style="text-align:left;">
+                            <p style="font-size:13px;color:#666;">فاتورة تأجير</p>
+                            <p style="font-size:12px;color:#999;">#${rental.id.slice(-6).toUpperCase()}</p>
+                            <p style="font-size:12px;color:#999;">${formatDate(new Date())}</p>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-size:14px;color:#666;margin-bottom:8px;">بيانات العميل</h3>
+                        <p><strong>الاسم:</strong> ${customer ? customer.name : '—'}</p>
+                        <p><strong>الهاتف:</strong> ${customer ? customer.phone : '—'}</p>
+                        ${customer && customer.idNumber ? `<p><strong>رقم الهوية:</strong> ${customer.idNumber}</p>` : ''}
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-size:14px;color:#666;margin-bottom:8px;">تفاصيل التأجير</h3>
+                        <div class="inv-row"><span>الفستان</span><span><strong>${rental.dressName}</strong></span></div>
+                        <div class="inv-row"><span>تاريخ التأجير</span><span>${rental.startDate}</span></div>
+                        <div class="inv-row"><span>موعد الإرجاع</span><span>${rental.endDate}</span></div>
+                        <div class="inv-row"><span>عدد الأيام</span><span>${days} يوم</span></div>
+                        <div class="inv-row"><span>سعر التأجير</span><span><strong>${formatNum(total)} ${currency}</strong></span></div>
+                        ${rental.notes ? `<div class="inv-row"><span>ملاحظات</span><span>${rental.notes}</span></div>` : ''}
+                    </div>
+                    ${rental.deposit ? `<div class="inv-row"><span>الوديعة</span><span>${formatNum(rental.deposit)} ${currency}</span></div>` : ''}
+                    <div class="inv-row total"><span>المبلغ المطلوب</span><span>${formatNum(total + (rental.deposit || 0))} ${currency}</span></div>
+                    <div style="margin-top:24px;padding-top:16px;border-top:2px solid #e91e63;text-align:center;">
+                        <p style="font-size:12px;color:#999;">شكراً لثقتكم بـ ${shopName}</p>
+                    </div>
+                </div>
+            `;
+            $('#invoiceModal').classList.add('open');
+        }
+
+        function closeInvoiceModal() {
+            $('#invoiceModal').classList.remove('open');
+        }
+
+        function printInvoice() {
+            const content = $('#printableInvoice').innerHTML;
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>فاتورة</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Almarai', sans-serif; padding: 20px; color: #333; }
+                        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e91e63; padding-bottom: 16px; margin-bottom: 20px; }
+                        .inv-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
+                        .inv-row.total { font-weight: 800; font-size: 18px; color: #880e4f; border-top: 2px solid #880e4f; margin-top: 12px; padding-top: 12px; border-bottom: none; }
+                        h2 { color: #880e4f; margin: 0; }
+                    </style>
+                </head>
+                <body>${content}</body>
+                </html>
+            `);
+            win.document.close();
+            win.print();
+        }
+
+        let currentInvoiceRentalId = null;
+
+        function sendWhatsApp() {
+            if (!currentInvoiceRentalId) return;
+            const rental = appData.rentals.find(r => r.id === currentInvoiceRentalId);
+            if (!rental) return;
+            const customer = appData.customers.find(c => c.id === rental.customerId);
+            if (!customer || !customer.phone) { showToast('رقم هاتف العميل غير مسجل', 'error'); return; }
+
+            const days = daysBetween(parseDate(rental.startDate), parseDate(rental.endDate)) || 1;
+            const total = rental.price;
+            const currency = getCurrency();
+            const shopName = appData.settings.shopName || 'على مودك';
+
+            const msg = encodeURIComponent(
+                `*${shopName}* - فاتورة تأجير\n\n` +
+                `العميل: ${customer.name}\n` +
+                `الفستان: ${rental.dressName}\n` +
+                `من: ${rental.startDate}\n` +
+                `إلى: ${rental.endDate}\n` +
+                `عدد الأيام: ${days}\n` +
+                `سعر التأجير: ${formatNum(total)} ${currency}\n` +
+                (rental.deposit ? `الوديعة: ${formatNum(rental.deposit)} ${currency}\n` : '') +
+                `المطلوب: ${formatNum(total + (rental.deposit || 0))} ${currency}\n\n` +
+                `شكراً لثقتكم بـ ${shopName} 🌸`
+            );
+
+            const phone = customer.phone.replace(/[^0-9]/g, '');
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        }
+
+        // Override showInvoice to track current rental
+        const _origShowInvoice = showInvoice;
+        showInvoice = function(rentalId) {
+            currentInvoiceRentalId = rentalId;
+            _origShowInvoice(rentalId);
+        };
+
+        // ============================================================
+        //  NAVIGATION
+        // ============================================================
+        function navigateTo(view) {
+            currentView = view;
+            navItems.forEach(item => {
+                item.classList.toggle('active', item.dataset.view === view);
+            });
+            Object.keys(views).forEach(key => {
+                views[key].classList.toggle('active', key === view);
+            });
+            refreshAllViews();
+        }
+
+        function refreshAllViews() {
+            if (currentView === 'dashboard') renderDashboard();
+            else if (currentView === 'gallery') renderGallery();
+            else if (currentView === 'customers') renderCustomers();
+            else if (currentView === 'rentals') renderRentals();
+            else if (currentView === 'overdue') renderOverdue();
+            else if (currentView === 'expenses') renderExpenses();
+            else if (currentView === 'discounts') renderDiscounts();
+            else if (currentView === 'maintenance') renderMaintenance();
+            else if (currentView === 'reports') renderReports();
+            else if (currentView === 'settings') renderSettings();
+            updateBadges();
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        function showToast(msg, type = 'success') {
+            const old = document.querySelector('.toast-msg');
+            if (old) old.remove();
+            const div = document.createElement('div');
+            div.className = 'toast-msg';
+            div.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: ${type === 'error' ? 'rgba(200,70,70,0.9)' : 'rgba(233,30,99,0.95)'};
+                color: #fff; padding: 14px 32px; border-radius: 12px;
+                font-weight: 700; font-size: 16px; z-index: 9999;
+                box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255,255,255,0.1);
+                animation: fadeUp 0.3s ease;
+                font-family: 'Almarai', sans-serif;
+                max-width: 90%;
+                text-align: center;
+            `;
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => div.remove(), 400);
+            }, 2800);
+        }
+
+        // ============================================================
+        //  EXPORT / BACKUP
+        // ============================================================
+        function exportToCSV(data, filename) {
+            if (!data.length) { showToast('لا توجد بيانات للتصدير', 'error'); return; }
+            const headers = Object.keys(data[0]);
+            const csv = [headers.join(',')];
+            data.forEach(row => {
+                csv.push(headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(','));
+            });
+            const blob = new Blob(['\ufeff' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم التصدير بنجاح');
+        }
+
+        async function backupData() {
+            const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_${formatDate(new Date())}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم تصدير النسخة الاحتياطية');
+        }
+
+        async function restoreData(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.settings || !data.dresses) throw new Error('Invalid');
+                    appData = data;
+                    saveData(appData);
+                    refreshAllViews();
+                    showToast('تم استعادة البيانات بنجاح');
+                } catch (_) {
+                    showToast('ملف غير صالح', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ============================================================
+        //  EVENT BINDING
+        // ============================================================
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const view = item.dataset.view;
+                if (view) navigateTo(view);
+            });
+        });
+
+        // Dress form
+        $('#toggleDressFormBtn').addEventListener('click', () => {
+            if ($('#dressForm').classList.contains('open')) {
+                resetDressForm();
+            } else {
+                $('#dressForm').classList.add('open');
+                $('#dressForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        $('#cancelFormBtn').addEventListener('click', resetDressForm);
+        $('#saveDressBtn').addEventListener('click', saveDress);
+
+        // Customer form
+        $('#toggleCustomerFormBtn').addEventListener('click', () => {
+            if ($('#customerForm').classList.contains('open')) {
+                resetCustomerForm();
+            } else {
+                $('#customerForm').classList.add('open');
+                $('#customerForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        $('#cancelCustomerBtn').addEventListener('click', resetCustomerForm);
+        $('#saveCustomerBtn').addEventListener('click', saveCustomer);
+
+        // Rental modal
+        $('#newRentalBtn').addEventListener('click', openRentalModal);
+        $('#rentalModalClose').addEventListener('click', closeRentalModal);
+        $('#rentalModal').addEventListener('click', (e) => { if (e.target === $('#rentalModal')) closeRentalModal(); });
+        $('#confirmRentalBtn').addEventListener('click', confirmRental);
+
+        // Quick Book modal
+        $('#quickBookModalClose')?.addEventListener('click', closeQuickBookModal);
+        $('#quickBookModal')?.addEventListener('click', (e) => { if (e.target === $('#quickBookModal')) closeQuickBookModal(); });
+        $('#confirmQuickBookBtn')?.addEventListener('click', confirmQuickBook);
+
+        function checkRentalConflict() {
+            const dressId = $('#rentalDressSelect')?.value;
+            const startDate = $('#rentalStartDate')?.value;
+            const endDate = $('#rentalEndDate')?.value;
+            const conflictEl = document.getElementById('rentalConflict');
+            if (!conflictEl) {
+                const div = document.createElement('div');
+                div.id = 'rentalConflict';
+                div.style.cssText = 'color:#ff6b6b;font-size:14px;margin-bottom:10px;display:none;';
+                $('#confirmRentalBtn').parentNode.insertBefore(div, $('#confirmRentalBtn'));
+            }
+            const el = document.getElementById('rentalConflict');
+            if (dressId && startDate && endDate) {
+                const conflict = hasDateConflict(dressId, startDate, endDate, null);
+                if (conflict) {
+                    el.innerHTML = '<i class="fas fa-exclamation-circle"></i> تعارض مع الحجز: ' + conflict.startDate + ' → ' + conflict.endDate;
+                    el.style.display = 'block';
+                    $('#confirmRentalBtn').disabled = true;
+                    $('#confirmRentalBtn').style.opacity = '0.5';
+                } else {
+                    el.style.display = 'none';
+                    $('#confirmRentalBtn').disabled = false;
+                    $('#confirmRentalBtn').style.opacity = '1';
+                }
+            }
+        }
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'rentalDressSelect' || e.target.id === 'rentalStartDate' || e.target.id === 'rentalEndDate') {
+                checkRentalConflict();
+            }
+        });
+
+        // Invoice modal
+        $('#invoiceModalClose').addEventListener('click', closeInvoiceModal);
+        $('#closeInvoiceBtn').addEventListener('click', closeInvoiceModal);
+        $('#invoiceModal').addEventListener('click', (e) => { if (e.target === $('#invoiceModal')) closeInvoiceModal(); });
+        $('#printInvoiceBtn').addEventListener('click', printInvoice);
+        $('#whatsappInvoiceBtn')?.addEventListener('click', sendWhatsApp);
+
+        // Refresh buttons
+        $('#refreshGalleryBtn').addEventListener('click', () => { refreshAllViews(); showToast('تم التحديث'); });
+        $('#refreshCustomersBtn').addEventListener('click', () => { refreshAllViews(); showToast('تم التحديث'); });
+        $('#refreshRentalsBtn').addEventListener('click', () => { refreshAllViews(); showToast('تم التحديث'); });
+        $('#refreshExpensesBtn')?.addEventListener('click', () => { refreshAllViews(); showToast('تم التحديث'); });
+
+        // Expense form
+        $('#toggleExpenseFormBtn')?.addEventListener('click', () => {
+            if ($('#expenseForm').classList.contains('open')) resetExpenseForm();
+            else { $('#expenseForm').classList.add('open'); $('#expenseForm').scrollIntoView({ behavior: 'smooth' }); }
+        });
+        $('#cancelExpenseBtn')?.addEventListener('click', resetExpenseForm);
+        $('#saveExpenseBtn')?.addEventListener('click', saveExpense);
+
+        // Discount form
+        $('#toggleDiscountFormBtn')?.addEventListener('click', () => {
+            if ($('#discountForm').classList.contains('open')) resetDiscountForm();
+            else { $('#discountForm').classList.add('open'); $('#discountForm').scrollIntoView({ behavior: 'smooth' }); }
+        });
+        $('#cancelDiscountBtn')?.addEventListener('click', resetDiscountForm);
+        $('#saveDiscountBtn')?.addEventListener('click', saveDiscount);
+
+        // Maintenance form
+        $('#toggleMaintFormBtn')?.addEventListener('click', () => {
+            if ($('#maintForm').classList.contains('open')) resetMaintForm();
+            else {
+                $('#maintForm').classList.add('open');
+                const select = $('#maintDressSelect');
+                select.innerHTML = appData.dresses.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+                $('#maintForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        $('#cancelMaintBtn')?.addEventListener('click', resetMaintForm);
+        $('#saveMaintBtn')?.addEventListener('click', saveMaintenance);
+
+        // Search / Filter
+        $('#searchDress')?.addEventListener('input', renderGallery);
+        $('#filterStatus')?.addEventListener('change', renderGallery);
+        $('#filterCategory')?.addEventListener('change', renderGallery);
+        $('#searchCustomer')?.addEventListener('input', renderCustomers);
+        $('#searchRental')?.addEventListener('input', renderRentals);
+        $('#filterRentalStatus')?.addEventListener('change', renderRentals);
+
+        // Reports
+        $('#generateReportBtn')?.addEventListener('click', generatePeriodReport);
+
+        // Settings
+        $('#saveSettingsBtn')?.addEventListener('click', async () => {
+            appData.settings.shopName = $('#settShopName').value.trim();
+            appData.settings.shopPhone = $('#settShopPhone').value.trim();
+            appData.settings.shopAddress = $('#settShopAddress').value.trim();
+            saveSettings(appData.settings);
+            updateBrandDisplay();
+            showToast('تم حفظ الإعدادات');
+        });
+
+        $('#changePassBtn')?.addEventListener('click', async () => {
+            const oldPass = $('#settOldPass').value;
+            const newPass = $('#settNewPass').value;
+            const confirmPass = $('#settConfirmPass').value;
+            const auth = await loadAuth();
+            const currentPass = auth && auth.password ? auth.password : VALID_PASSWORD;
+
+            if (oldPass !== currentPass) {
+                showToast('كلمة المرور الحالية غير صحيحة', 'error');
+                return;
+            }
+            if (!newPass || newPass.length < 4) {
+                showToast('كلمة المرور الجديدة يجب أن تكون 4 أحرف على الأقل', 'error');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showToast('كلمتا المرور غير متطابقتين', 'error');
+                return;
+            }
+
+            VALID_PASSWORD = newPass;
+            saveAuth({ password: newPass });
+            $('#settOldPass').value = '';
+            $('#settNewPass').value = '';
+            $('#settConfirmPass').value = '';
+            showToast('تم تغيير كلمة المرور بنجاح');
+        });
+
+        // Export
+        $('#exportDressesBtn')?.addEventListener('click', () => {
+            exportToCSV(appData.dresses.map(d => ({
+                'الاسم': d.name,
+                'الفئة': d.category || '',
+                'المقاس': d.size || '',
+                'اللون': d.color || '',
+                'الحالة': d.condition || '',
+                'سعر التأجير': d.price || 0,
+                'الوديعة': d.deposit || 0,
+                'الحالة': d.status || '',
+                'الوصف': d.description || '',
+            })), 'فساتين.csv');
+        });
+
+        $('#exportRentalsBtn')?.addEventListener('click', () => {
+            exportToCSV(appData.rentals.map(r => ({
+                'الفستان': r.dressName,
+                'العميل': r.customerName || '',
+                'تاريخ البداية': r.startDate,
+                'تاريخ النهاية': r.endDate,
+                'المبلغ': r.price || 0,
+                'الوديعة': r.deposit || 0,
+                'الحالة': getRentalStatus(r),
+                'ملاحظات': r.notes || '',
+            })), 'تأجيرات.csv');
+        });
+
+        // Backup / Restore
+        $('#backupBtn')?.addEventListener('click', backupData);
+        $('#restoreFile')?.addEventListener('change', function() {
+            if (this.files[0]) {
+                if (!confirm('هل تريد استعادة البيانات؟ سيتم استبدال جميع البيانات الحالية.')) return;
+                restoreData(this.files[0]);
+            }
+        });
+
+        // Image preview
+        $('#dressImage')?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) { $('#imagePreview').style.display = 'none'; return; }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                $('#previewImg').src = e.target.result;
+                $('#imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeRentalModal();
+                closeInvoiceModal();
+            }
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        async function initApp() {
+            const auth = await loadAuth();
+            if (auth && auth.password) {
+                VALID_PASSWORD = auth.password;
+            }
+
+            appData = loadData();
+
+            if (!appData.dresses.length && !appData.customers.length && !appData.rentals.length) {
+                appData = getDefaultData();
+                saveData(appData);
+            }
+
+            const todayStr = formatDate(new Date());
+            $('#rentalStartDate') && ($('#rentalStartDate').min = todayStr);
+            $('#reportFrom') && ($('#reportFrom').value = todayStr);
+            const monthAgo = new Date();
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            $('#reportFrom') && ($('#reportFrom').value = formatDate(monthAgo));
+            $('#reportTo') && ($('#reportTo').value = todayStr);
+
+            updateBrandDisplay();
+            navigateTo('dashboard');
+        }
+
+        checkAuth();
+
+        if (sessionStorage.getItem('loggedIn') === 'true') {
+            initApp();
+        }
+
+        console.log('نظام إدارة محل تأجير الفساتين');
+        console.log('بيانات الدخول: manaal_2222 / M@2044');
+        console.log('البيانات محفوظة في localStorage');
+    </script>
+
+</body>
+</html>
